@@ -1,5 +1,5 @@
 program main
-    use LexerHandlerModule
+    use LexerModule
     use TokenModule
     implicit none
 
@@ -43,36 +43,23 @@ program main
         do while( i <= line_len )
 
             str_collector = trim(str_collector) // trim(line(i:i))
-
-
-            if (isAValidString(str_collector, line(i:i))) then
-                ! print *, str_collector
-                str_collector = ""
-            end if
             
-            if (isALexeme(str_collector, line(i:i), row_index, i, tokens)) then
-                ! print *, str_collector
-                ! type(Token) :: new_lexeme
-                
-                ! new_lexeme%no = 1
-                ! new_lexeme%lexeme = "grafica"
-                ! new_lexeme%lex_type = "PALABRA_RESERVADA"
-                ! new_lexeme%row = 1
-                ! new_lexeme%column = 1
-
+            if (checkLexeme(str_collector, line(i:i), row_index, i, tokens, tokens_count)) then
                 str_collector = ""
-
-
             end if
-
 
             i = i + 1
         end do
 
-        print *, row_index
         row_index = row_index + 1
 
     end do
+
+    ! print *, "Print data"
+
+    ! do i = 1, size(tokens), 1
+    !     print *, "NO: ", tokens(i)%no, " Lexeme: ", tokens(i)%lexeme
+    ! end do
 
     ! Close the file for better performance
     close(io)
