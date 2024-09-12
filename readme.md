@@ -4,10 +4,13 @@
 In order to execute this program, please run the following commands through the bash.
 
 ```bash
-    # Generate executable (compiled)
+    # 1. Generate executable (compiled)
     gfortran ./Proyecto1/main.f90 -o main -g -fcheck=all
+
+    # 2. From a different directory
+    gfortran ./Proyecto1/modules/TokenModule.f90 ./Proyecto1/main.f90 -o ./Proyecto1/main -g -fcheck=all
     # Run executable
-    ./main
+    ./Proyecto1/main
 ```
 
 ## Troubleshooting

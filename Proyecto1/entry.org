@@ -1,0 +1,24 @@
+grafica: {
+    nombre:"nombre de grafico"; 
+    continente {
+        nombre: "Asia";
+        pais: {
+            nombre: "Japon"; 
+            poblacion: 2352342; 
+            saturacion:80%; 
+            bandera: "C:\imagen.jpg";
+        }
+        pais: {
+            bandera: "C:\imagen.jpg"; 
+            nombre: "China"; 
+            poblacion: 1350000000; 
+            saturacion:95%;
+        }
+        pais: {
+            saturacion:40%; 
+            poblacion: 2352342; 
+            nombre:"Korea"; 
+            bandera: "C:\imagen.jpg";
+        }
+    }
+}
