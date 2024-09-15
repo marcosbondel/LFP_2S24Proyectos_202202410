@@ -1,6 +1,8 @@
 program main
     use LexerModule
     use TokenModule
+    use ErrorModule
+    use AppModule
     implicit none
 
     ! Variables declaration
@@ -8,18 +10,18 @@ program main
     character(len=512) :: msg
     character(len=100) :: line
     character(:), allocatable :: str_collector
-    logical :: flag_number
 
     ! Data persistance vectors
     type(Token), allocatable :: tokens(:)
+    type(Error), allocatable :: errors(:)
 
     ! Init values
     tokens_count = 0
     row_index = 1
     line_len = 0
     str_collector = ""
-    flag_number = .false.
     allocate(tokens(0))
+    allocate(errors(0))
     
     ! We try to open the entry file
     open(newunit=io, file="./entry.org", status="old", action="read", iostat=stat, iomsg=msg)
@@ -31,6 +33,8 @@ program main
     end if
 
     ! Reading the file, line by line
+    ! In each iteration we check if the character(s) belong to the language
+    ! otherwise, we save it as an error
     do
         read(io, '(A)', iostat=stat) line
                 
@@ -52,8 +56,13 @@ program main
         end do
 
         row_index = row_index + 1
-
     end do
+
+    ! If it does exist any error we won't create any graphic
+    if(size(errors) > 0) then
+        ! we copy data from the input
+        call copy_data(tokens)
+    end if
 
     ! print *, "Print data"
 

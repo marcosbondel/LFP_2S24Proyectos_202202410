@@ -2,9 +2,13 @@
 
 ```bash
     # .
-   gfortran ./utils/HelperModule.f90 ./utils/LexerModule.f90 ./modules/TokenModule.f90 ./main.f90 -o main
+   gfortran ./modules/ErrorModule.f90 ./utils/HelperModule.f90 ./utils/LexerModule.f90 ./modules/TokenModule.f90 ./main.f90 -o main
     # /
     ./main
+```
+
+```bash
+    python3 ./GUI/index.py
 ```
 
 Built with :blue_heart: by OpenECYS

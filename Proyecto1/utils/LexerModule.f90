@@ -13,10 +13,11 @@ module LexerModule
             integer, intent(in) :: row, column
             integer, intent(inout) :: tokens_count
             logical :: isALexeme
-            type(Token), allocatable :: tokens(:) ! data persistence
+            type(Token), intent(inout),allocatable :: tokens(:) ! data persistence
             type(Token) :: new_lexeme
 
             isALexeme = .false.
+
 
             if(str_collector == "grafica") then
                 tokens_count = tokens_count + 1
@@ -206,18 +207,22 @@ module LexerModule
                     isALexeme = .true.
                 end if
 
-            else if(current_character == '"' .and. len(str_collector) > 1 .and. str_collector(1:1) == '"' .and. str_collector(len(str_collector):len(str_collector)) == '"') then
-                tokens_count = tokens_count + 1
-
-                new_lexeme%no = tokens_count
-                new_lexeme%lexeme = str_collector
-                new_lexeme%lex_type = "CADENA"
-                new_lexeme%row = row
-                new_lexeme%column = column
-
-                call addToken(size(tokens), new_lexeme, tokens)
+            else if(current_character == '"') then
                 
-                isALexeme = .true.
+                ! TODO: analyze strings separately
+                if(len(str_collector) > 1 .and. str_collector(1:1) == '"' .and. str_collector(len(str_collector):len(str_collector)) == '"') then
+                    tokens_count = tokens_count + 1
+
+                    new_lexeme%no = tokens_count
+                    new_lexeme%lexeme = str_collector
+                    new_lexeme%lex_type = "CADENA"
+                    new_lexeme%row = row
+                    new_lexeme%column = column
+
+                    call addToken(size(tokens), new_lexeme, tokens)
+                    
+                    isALexeme = .true.
+                end if
             else
                 if (current_character /= ' ' .and. current_character /= '\t' .and. &
                     current_character /= '\r' .and. current_character /= '\f' .and. &
@@ -229,6 +234,7 @@ module LexerModule
                 end if
 
             end if
+
 
 
 
