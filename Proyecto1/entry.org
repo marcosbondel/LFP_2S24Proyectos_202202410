@@ -22,23 +22,44 @@ grafica: {
         }
     }
     continente {
-        nombre: "Asia";
+        nombre: "Europa";
         pais: {
-            nombre: "Japon"; 
+            nombre: "Alemania"; 
             poblacion: 2352342; 
             saturacion:80%; 
             bandera: "C:\imagen.jpg";
         }
         pais: {
             bandera: "C:\imagen.jpg"; 
-            nombre: "China"; 
+            nombre: "Italia"; 
             poblacion: 1350000000; 
             saturacion:95%;
         }
         pais: {
             saturacion:40%; 
             poblacion: 2352342; 
-            nombre:"Korea"; 
+            nombre:"Francia"; 
+            bandera: "C:\imagen.jpg";
+        }
+    }
+    continente {
+        nombre: "America";
+        pais: {
+            nombre: "Guatemala"; 
+            poblacion: 2352342; 
+            saturacion:80%; 
+            bandera: "C:\imagen.jpg";
+        }
+        pais: {
+            bandera: "C:\imagen.jpg"; 
+            nombre: "USA"; 
+            poblacion: 1350000000; 
+            saturacion:95%;
+        }
+        pais: {
+            saturacion:40%; 
+            poblacion: 2352342; 
+            nombre:"Mexico"; 
             bandera: "C:\imagen.jpg";
         }
     }

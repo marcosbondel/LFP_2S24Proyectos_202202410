@@ -2,9 +2,9 @@
 
 ```bash
     # .
-   gfortran ./modules/ErrorModule.f90 ./utils/HelperModule.f90 ./utils/LexerModule.f90 ./modules/TokenModule.f90 ./main.f90 -o main
+   gfortran ./modules/ErrorModule.f90 ./utils/HelperModule.f90 ./utils/LexerModule.f90 ./modules/TokenModule.f90 ./main.f90 -o ./built/main
     # /
-    ./main
+    ./built/main
 ```
 
 ```bash

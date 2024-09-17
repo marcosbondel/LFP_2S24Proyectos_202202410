@@ -12,7 +12,7 @@ module TokenModule
     contains
 
         ! This Subroutine is thought to implement dynamic memory management
-        subroutine addToken(length, newRecord, records)
+        subroutine add_token(length, newRecord, records)
             implicit none
 
             integer :: i
@@ -39,6 +39,6 @@ module TokenModule
             allocate(records(length + 1))
 
             records = tempRecords
-        end subroutine addToken
+        end subroutine add_token
 
 end module TokenModule

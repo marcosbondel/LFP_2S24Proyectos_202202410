@@ -6,22 +6,36 @@ program main
     implicit none
 
     ! Variables declaration
-    integer :: io, stat, i, line_len, row_index, tokens_count
+    integer :: io, stat, i, j, line_len, row_index, tokens_count, continents_count
     character(len=512) :: msg
     character(len=100) :: line
-    character(:), allocatable :: str_collector
+    character(len=:), allocatable :: str_collector, str_context
 
     ! Data persistance vectors
     type(Token), allocatable :: tokens(:)
     type(Error), allocatable :: errors(:)
+    type(Country) :: current_country
+    type(Continent) :: current_continent
+    type(Graph) :: current_graph
 
     ! Init values
-    tokens_count = 0
     row_index = 1
     line_len = 0
+    tokens_count = 0
+    continents_count = 0
     str_collector = ""
+    str_context = ""
     allocate(tokens(0))
     allocate(errors(0))
+
+    allocate(current_graph%continents(0))
+    ! allocate(current_graph%continents(0))
+
+    current_continent%name = ""
+    current_country%name = ""
+    current_country%population = 0
+    current_country%flag = ""
+    current_country%saturation = ""
     
     ! We try to open the entry file
     open(newunit=io, file="./entry.org", status="old", action="read", iostat=stat, iomsg=msg)
@@ -48,7 +62,7 @@ program main
 
             str_collector = trim(str_collector) // trim(line(i:i))
             
-            if (checkLexeme(str_collector, line(i:i), row_index, i, tokens, tokens_count)) then
+            if (checkLexeme(str_collector, line(i:i), row_index, i, tokens, tokens_count, errors, current_country, current_continent, current_graph, continents_count, str_context)) then
                 str_collector = ""
             end if
 
@@ -58,13 +72,19 @@ program main
         row_index = row_index + 1
     end do
 
-    ! If it does exist any error we won't create any graphic
-    if(size(errors) > 0) then
-        ! we copy data from the input
-        call copy_data(tokens)
-    end if
+    print *, ""
+    print *, ""
 
-    ! print *, "Print data"
+    ! integer :: j
+    do i = 1, size(current_graph%continents), 1
+        print *, current_graph%continents(i)%name
+        do j = 1, size(current_graph%continents(i)%countries), 1
+            print *, current_graph%continents(i)%countries(j)%name, current_graph%continents(i)%countries(j)%saturation
+        end do
+
+        print *, ""
+        print *, ""
+    end do
 
     ! do i = 1, size(tokens), 1
     !     print *, "NO: ", tokens(i)%no, " Lexeme: ", tokens(i)%lexeme
