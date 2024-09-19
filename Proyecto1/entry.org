@@ -42,7 +42,7 @@ grafica: {
             bandera: "C:\imagen.jpg";
         }
     }
-    continente {
+    continente { /"/"
         nombre: "America";
         pais: {
             nombre: "Guatemala"; 

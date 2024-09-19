@@ -6,7 +6,7 @@ program main
     implicit none
 
     ! Variables declaration
-    integer :: io, stat, i, j, line_len, row_index, tokens_count, continents_count
+    integer :: io, stat, i, j, line_len, row_index, tokens_count, errors_count, continents_count
     character(len=512) :: msg
     character(len=100) :: line
     character(len=:), allocatable :: str_collector, str_context
@@ -22,6 +22,7 @@ program main
     row_index = 1
     line_len = 0
     tokens_count = 0
+    errors_count = 0
     continents_count = 0
     str_collector = ""
     str_context = ""
@@ -62,7 +63,7 @@ program main
 
             str_collector = trim(str_collector) // trim(line(i:i))
             
-            if (checkLexeme(str_collector, line(i:i), row_index, i, tokens, tokens_count, errors, current_country, current_continent, current_graph, continents_count, str_context)) then
+            if (checkLexeme(str_collector, line(i:i), row_index, i, tokens, tokens_count, errors, errors_count, current_country, current_continent, current_graph, continents_count, str_context)) then
                 str_collector = ""
             end if
 
@@ -86,9 +87,15 @@ program main
         print *, ""
     end do
 
+    ! print *, "LEXEMAS"
     ! do i = 1, size(tokens), 1
     !     print *, "NO: ", tokens(i)%no, " Lexeme: ", tokens(i)%lexeme
     ! end do
+    
+    print *, "ERRORES"
+    do i = 1, size(errors), 1
+        print *, "NO: ", errors(i)%no, " Error: ", errors(i)%err
+    end do
 
     ! Close the file for better performance
     close(io)
