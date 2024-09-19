@@ -2,6 +2,7 @@ program main
     use LexerModule
     use TokenModule
     use ErrorModule
+    use HelperModule
     use AppModule
     implicit none
 
@@ -61,7 +62,8 @@ program main
 
         do while( i <= line_len )
 
-            str_collector = trim(str_collector) // trim(line(i:i))
+            ! str_collector = trim(str_collector) // trim(line(i:i))
+            str_collector = trim(str_collector) // clean_string(trim(line(i:i)))
             
             if (checkLexeme(str_collector, line(i:i), row_index, i, tokens, tokens_count, errors, errors_count, current_country, current_continent, current_graph, continents_count, str_context)) then
                 str_collector = ""
@@ -77,24 +79,26 @@ program main
     print *, ""
 
     ! integer :: j
-    do i = 1, size(current_graph%continents), 1
-        print *, current_graph%continents(i)%name
-        do j = 1, size(current_graph%continents(i)%countries), 1
-            print *, current_graph%continents(i)%countries(j)%name, current_graph%continents(i)%countries(j)%saturation
-        end do
+    ! do i = 1, size(current_graph%continents), 1
+    !     print *, current_graph%continents(i)%name
+    !     do j = 1, size(current_graph%continents(i)%countries), 1
+    !         print *, current_graph%continents(i)%countries(j)%name, current_graph%continents(i)%countries(j)%saturation
+    !     end do
 
-        print *, ""
-        print *, ""
-    end do
-
-    ! print *, "LEXEMAS"
-    ! do i = 1, size(tokens), 1
-    !     print *, "NO: ", tokens(i)%no, " Lexeme: ", tokens(i)%lexeme
+    !     print *, ""
+    !     print *, ""
     ! end do
+
+    print *, "LEXEMAS: ", size(tokens)
+    print *, ""
+    do i = 1, size(tokens), 1
+        print *, "NO: ", tokens(i)%no, " Lexeme: ", tokens(i)%lexeme
+    end do
     
-    print *, "ERRORES"
+    print *, "ERRORES: ", size(errors)
+    print *, ""
     do i = 1, size(errors), 1
-        print *, "NO: ", errors(i)%no, " Error: ", errors(i)%err
+        print *, "NO: ", errors(i)%no, " Error: ", trim(errors(i)%err), " Row: ", errors(i)%row, " Column: ", errors(i)%column
     end do
 
     ! Close the file for better performance

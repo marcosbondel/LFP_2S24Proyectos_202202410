@@ -28,7 +28,7 @@ module LexerModule
 
             isALexeme = .false.
 
-            if(str_collector == "grafica") then
+            if(to_lower_case(str_collector) == "grafica") then
                 str_context = str_context // "grafica"
                 tokens_count = tokens_count + 1
 
@@ -89,7 +89,7 @@ module LexerModule
                 call add_token(size(tokens), new_lexeme, tokens)
 
                 isALexeme = .true.
-            else if(str_collector == "nombre") then
+            else if(trim(to_lower_case(str_collector)) == "nombre") then
                 str_context = str_context // ";" // "nombre"
                 
                 tokens_count = tokens_count + 1
@@ -103,7 +103,7 @@ module LexerModule
                 call add_token(size(tokens), new_lexeme, tokens)
 
                 isALexeme = .true.
-            else if(str_collector == "continente") then
+            else if(to_lower_case(str_collector) == "continente") then
                 ! print *, "antes: ", str_context
                 str_context = "grafica;continente"
                 ! print *, "despues: ", str_context
@@ -119,7 +119,7 @@ module LexerModule
                 call add_token(size(tokens), new_lexeme, tokens)
 
                 isALexeme = .true.
-            else if(str_collector == "pais") then
+            else if(to_lower_case(str_collector) == "pais") then
                 str_context = str_context // ";" // "pais"
 
                 tokens_count = tokens_count + 1
@@ -133,7 +133,7 @@ module LexerModule
                 call add_token(size(tokens), new_lexeme, tokens)
 
                 isALexeme = .true.
-            else if(str_collector == "bandera") then
+            else if(to_lower_case(str_collector) == "bandera") then
                 str_context = str_context // ";" // "bandera"
 
                 tokens_count = tokens_count + 1
@@ -147,7 +147,7 @@ module LexerModule
                 call add_token(size(tokens), new_lexeme, tokens)
 
                 isALexeme = .true.
-            else if(str_collector == "poblacion") then
+            else if(to_lower_case(str_collector) == "poblacion") then
                 str_context = str_context // ";" // "poblacion"
 
                 tokens_count = tokens_count + 1
@@ -161,7 +161,7 @@ module LexerModule
                 call add_token(size(tokens), new_lexeme, tokens)
 
                 isALexeme = .true.
-            else if(str_collector == "saturacion") then
+            else if(to_lower_case(str_collector) == "saturacion") then
                 str_context = str_context // ";" // "saturacion"
 
                 tokens_count = tokens_count + 1
@@ -238,7 +238,7 @@ module LexerModule
                 end if
             else
                 if(current_character /= ' ' .and. current_character /= '\t' .and. &
-                    current_character /= '\r' .and. current_character /= '\f' .and. &
+                    current_character /= '\r' .and. current_character /= '\f' .and. current_character /= char(9) .and. &
                     current_character /= '\0' .and. .not. ((current_character >= 'a' .and. current_character <= 'z') .or. &
                     (current_character >= 'A' .and. current_character <= 'Z')) .and. &
                     .not. isANumericValue(current_character) .and. &
@@ -312,8 +312,6 @@ module LexerModule
                 ! We clean the continent properties to storage the next one
                 current_continent%name = ""
 
-                ! Assign init memory for countries
-                
                 str_context = "grafica;continente"
             end if
             
