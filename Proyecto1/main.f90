@@ -73,5 +73,16 @@ program main
 
     10 continue
 
-    call current_graph%write_graph
+    if (size(errors) > 0) then
+        ! Create HTML Errors
+        call write_html_errors(errors)
+    else
+        ! Create HTML Tokens
+        call write_html_tokens(tokens)
+
+        ! Send data for rendering
+        call current_graph%write_graph
+    end if
+
+
 end program main
