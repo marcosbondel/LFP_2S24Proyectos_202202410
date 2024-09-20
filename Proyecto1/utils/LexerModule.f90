@@ -105,9 +105,7 @@ module LexerModule
 
                 isALexeme = .true.
             else if(to_lower_case(str_collector) == "continente") then
-                ! print *, "antes: ", str_context
                 str_context = "grafica;continente"
-                ! print *, "despues: ", str_context
 
                 tokens_count = tokens_count + 1
 
@@ -300,8 +298,6 @@ module LexerModule
             end if
 
             if(current_continent%name /= "" .and. size(errors) == 0) then
-                print *, "Nombre Continente: ", current_continent%name
-
                 if(allocated(current_continent%countries)) then
                     deallocate(current_continent%countries)
                 end if

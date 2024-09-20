@@ -160,10 +160,12 @@ module AppModule
 
             do i = 1, size(self%continents), 1
                 ! Continent information
-                write(*, '(A, A, I3, A)', advance='no') trim(self%continents(i)%name), ",", self%continents(i)%saturation, ";"
+                write(*, '(A, A, I15, A, A)', advance='no') trim(self%continents(i)%name), ",", self%continents(i)%saturation, ",", trim(self%continents(i)%color)
+                ! print *, "hola - ", trim(self%continents(i)%name), ",", self%continents(i)%saturation, ",", trim(self%continents(i)%color) , ";"
                 do j = 1, size(self%continents(i)%countries), 1
                     ! Country information
-                    write(*, '(A, A, I3, A, I3, A, A, A, A, A)', advance='no') trim(self%continents(i)%countries(j)%name), ",", self%continents(i)%countries(j)%saturation, ",", self%continents(i)%countries(j)%population, ",", trim(self%continents(i)%countries(j)%flag), ",", trim(self%continents(i)%countries(j)%color), ";"
+                    write(*, '(A, A, A, I15, A, I15, A, A, A, A)', advance='no') ";", trim(self%continents(i)%countries(j)%name), ",", self%continents(i)%countries(j)%saturation, ",", self%continents(i)%countries(j)%population, ",", trim(self%continents(i)%countries(j)%flag), ",", trim(self%continents(i)%countries(j)%color)
+                    ! print *, "hola -", trim(self%continents(i)%countries(j)%name), ",", self%continents(i)%countries(j)%saturation, ",", self%continents(i)%countries(j)%population, ",", trim(self%continents(i)%countries(j)%flag), ",", trim(self%continents(i)%countries(j)%color), ";"
                 end do
                 write(*, *) ! new line
             end do

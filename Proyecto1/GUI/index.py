@@ -1,129 +1,15 @@
-# from tkinter import *
-# from tkinter import filedialog as FileDialog
-# from tkinter import messagebox as MessageBox
-# from io import open
-# import subprocess
-
-# path = ""
-
-# def new_file():
-#     global path
-#     message.set("Nuevo fichero")
-#     path = ""
-#     text_editor.delete(1.0, "end")
-#     root.title("Mi editor")
-
-# def open_file():
-#     global path
-#     message.set("Abrir fichero")
-#     path = FileDialog.askopenfilename(
-#         initialdir='.', 
-#         filetypes=(("Text files", "*.txt"),),
-#         title="Abrir un fichero de text_editor")
-
-#     if path != "":
-#         file = open(path, 'r')
-#         content = file.read()
-#         text_editor.delete(1.0,'end')
-#         text_editor.insert('insert', content)
-#         file.close()
-#         root.title(path + " - Mi editor")
-
-# def save_file():
-#     message.set("Guardar fichero")
-#     if path != "":
-#         content = text_editor.get(1.0,'end-1c')
-#         file = open(path, 'w+')
-#         file.write(content)
-#         file.close()
-#         message.set("Fichero guardado correctamente")
-#     else:
-#         save_as()
-
-# def save_as():
-#     global path
-#     message.set("Guardar fichero como")
-
-#     file = FileDialog.asksaveasfile(title="Guardar fichero", 
-#         mode="w", defaultextension=".txt")
-
-#     if file is not None:
-#         path = file.name
-#         content = text_editor.get(1.0,'end-1c')
-#         file = open(path, 'w+')
-#         file.write(content)
-#         file.close()
-#         message.set("Fichero guardado correctamente")
-#     else:
-#         message.set("Guardado cancelado")
-#         path = ""
-
-# def about():
-#     MessageBox.showinfo("Acerca de", "202202410 - Marcos Daniel Bonifasi de Leon")
-
-# # Root window configuration
-# root = Tk()
-# root.title("Mi editor")
-
-# # Top menu
-# menubar = Menu(root)
-# filemenu1 = Menu(menubar, tearoff=0)
-# filemenu1.add_command(label="Nuevo", command=new_file)
-# filemenu1.add_command(label="Abrir", command=open_file)
-# filemenu1.add_command(label="Guardar", command=save_file)
-# filemenu1.add_command(label="Guardar como", command=save_as)
-# filemenu1.add_separator()
-# filemenu1.add_command(label="Exit", command=root.quit)
-# menubar.add_cascade(menu=filemenu1, label="File")
-
-# filemenu2 = Menu(menubar, tearoff=0)
-# filemenu2.add_command(label="Estudiante", command=about)
-# menubar.add_cascade(menu=filemenu2, label="Acerca de")
-
-
-# # Hijo de root, no ocurre nada
-# frame = Frame(root)  
-
-
-
-# # Central text editor
-# text_editor = Text(frame)
-# text_editor.pack(fill="both", expand=1)
-# # text_editor.config(bd=0, padx=8, pady=6, font=("Consolas",12))
-
-# # frame.config(width=780,height=320) 
-# # frame.place(x=0, y=0) 
-# frame.pack()     
-
-# # text_editor = Text(root, width=70, height=30)
-# # text_editor.place(x=0, y=0)
-
-# # Bottom monitor
-# # message = StringVar()
-# # message.set("Bienvenido a tu LFP Editor")
-# # monitor = Label(root, textvar=message, justify='left')
-# # monitor.pack(side="left")
-
-# root.geometry("1200x600")
-
-# root.config(menu=menubar)
-# # Application loop
-# root.mainloop()
-
-
-
 from tkinter import *
+from pathlib import Path
 import subprocess
+from graphviz import Digraph
 
+# Create a new directed graph
+dot = Digraph()
+
+data_graph = {}
 
 # función que se ejecuta al presionar el botón "Analizar"
 def analize():
-    # texto = text_area.get("1.0", END)
-    # consola.config(state=NORMAL)
-    # consola.delete("1.0", END)
-    # consola.insert("1.0", texto)
-    # consola.config(state=DISABLED)
-
     # Obtener el dato ingresado en la entrada
     dato = text_area.get("1.0", END)
     
@@ -135,9 +21,69 @@ def analize():
         text=True  # Asegurarse de que la salida se maneje como texto
     )
 
-    # Mostrar la salida en el área de texto
-    consola.insert(END, resultado.stdout)
-    print(resultado.stdout)
+    if not resultado.stdout:
+        return
+
+    # print("")
+    # print(resultado.stdout)
+    # print("")
+
+    output_lines = resultado.stdout.strip().split('\n')  # Dividir la salida en líneas
+    graph = { "name": "", "continents": []}
+    continents = []
+
+    # print("")
+    # print(output_lines)
+    # print("")
+
+    for i in range(len(output_lines)):
+        continent_contries_values = output_lines[i].split(";")
+
+        if i == 0:
+            graph["name"] = continent_contries_values[0]
+
+        if len(continent_contries_values) > 0 and i > 0:
+            continent_info = continent_contries_values[0].split(",")
+            continent = {
+                "name": continent_info[0],
+                "saturation": int(continent_info[1]),
+                "color": continent_info[2],
+                "countries": [{
+                    "name": country.split(",")[0], 
+                    "saturation": int(country.split(",")[1]), 
+                    "population": int(country.split(",")[2]), 
+                    # "flag": fr"{country.split(',')[3]}", 
+                    "flag": country.split(",")[3].replace("\\", "/"),
+                    "color": country.split(",")[4] 
+                } for country in continent_contries_values[1::] ],
+            }
+
+            graph["continents"].append(continent)
+        
+    print(graph) 
+
+    dot.node(graph["name"], graph["name"])
+
+    for continent in graph["continents"]:
+        dot.node(continent["name"], f"{continent['name']} | {continent['saturation']}", style='filled', fillcolor=f"{continent['color']}")
+        dot.edge(graph["name"], continent["name"])
+
+        for country in continent["countries"]:
+            dot.node(country["name"], f"{country['name']} | {country['saturation']}", style='filled', fillcolor=f"{country['color']}")
+            dot.edge(continent["name"], country["name"])
+
+
+
+    dot.render('graph', format='png', cleanup=True)
+    # dot.view()
+    
+    # if(resultado.stdout):
+    #     print(resultado.stdout[0])
+    
+    # else:
+    #     print("ERROR EN EL ARCHIVO DE ENTRADA")
+
+
 
 def btn_abrir():
     archivo = open("./entrada.lfp", "r")
