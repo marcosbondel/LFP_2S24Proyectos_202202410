@@ -7,9 +7,9 @@ program main
     implicit none
 
     ! Variables declaration
-    integer :: io, stat, i, j, line_len, row_index, tokens_count, errors_count, continents_count
-    character(len=512) :: msg
-    character(len=100) :: line
+    integer :: i, j, len_temp, line_len, row_index, tokens_count, errors_count, continents_count
+    character(len=:), allocatable :: input_text
+    character(len=256) :: temp
     character(len=:), allocatable :: str_collector, str_context
 
     ! Data persistance vectors
@@ -31,41 +31,34 @@ program main
     allocate(errors(0))
 
     allocate(current_graph%continents(0))
-    ! allocate(current_graph%continents(0))
 
     current_continent%name = ""
+    current_continent%saturation = 0
     current_country%name = ""
     current_country%population = 0
     current_country%flag = ""
-    current_country%saturation = ""
+    current_country%saturation = 0
     
-    ! We try to open the entry file
-    open(newunit=io, file="./entry.org", status="old", action="read", iostat=stat, iomsg=msg)
-    
-    ! In case we get any error when opening the file we stop the program
-    if (stat /= 0) then
-        print *, "-ERROR: ", trim(msg)
-        return
-    end if
 
     ! Reading the file, line by line
     ! In each iteration we check if the character(s) belong to the language
     ! otherwise, we save it as an error
     do
-        read(io, '(A)', iostat=stat) line
-                
-        ! Check if the reading has been successful
-        if (stat /= 0) exit
+        ! Read a line from input, with error handling for end-of-file
+        read(*, '(A)', IOSTAT=len_temp, END=10) temp
+
+        ! Trim and allocate space for the input
+        len_temp = len_trim(temp)
+        allocate(character(len=len_temp) :: input_text)
+        input_text = trim(temp)
 
         i = 1
-        line_len = len(line)
+        line_len = len(input_text)
 
         do while( i <= line_len )
-
-            ! str_collector = trim(str_collector) // trim(line(i:i))
-            str_collector = trim(str_collector) // clean_string(trim(line(i:i)))
+            str_collector = trim(str_collector) // clean_string(trim(input_text(i:i)))
             
-            if (checkLexeme(str_collector, line(i:i), row_index, i, tokens, tokens_count, errors, errors_count, current_country, current_continent, current_graph, continents_count, str_context)) then
+            if (checkLexeme(str_collector, input_text(i:i), row_index, i, tokens, tokens_count, errors, errors_count, current_country, current_continent, current_graph, continents_count, str_context)) then
                 str_collector = ""
             end if
 
@@ -73,35 +66,12 @@ program main
         end do
 
         row_index = row_index + 1
+ 
+        ! Deallocate the string to avoid memory leaks
+        deallocate(input_text)
     end do
 
-    print *, ""
-    print *, ""
+    10 continue
 
-    ! integer :: j
-    ! do i = 1, size(current_graph%continents), 1
-    !     print *, current_graph%continents(i)%name
-    !     do j = 1, size(current_graph%continents(i)%countries), 1
-    !         print *, current_graph%continents(i)%countries(j)%name, current_graph%continents(i)%countries(j)%saturation
-    !     end do
-
-    !     print *, ""
-    !     print *, ""
-    ! end do
-
-    print *, "LEXEMAS: ", size(tokens)
-    print *, ""
-    do i = 1, size(tokens), 1
-        print *, "NO: ", tokens(i)%no, " Lexeme: ", tokens(i)%lexeme
-    end do
-    
-    print *, "ERRORES: ", size(errors)
-    print *, ""
-    do i = 1, size(errors), 1
-        print *, "NO: ", errors(i)%no, " Error: ", trim(errors(i)%err), " Row: ", errors(i)%row, " Column: ", errors(i)%column
-    end do
-
-    ! Close the file for better performance
-    close(io)
-
+    call current_graph%write_graph
 end program main

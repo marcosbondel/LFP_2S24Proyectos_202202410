@@ -13,6 +13,7 @@ module LexerModule
             ! character(len=:), intent(in), allocatable :: str_collector
             character(len=:), intent(inout), allocatable :: str_collector, str_context
             character(len=*), intent(in) :: current_character
+            character(len=:), allocatable :: aux_str_collector
             integer, intent(in) :: row, column
             integer, intent(inout) :: tokens_count, errors_count, continents_count
             logical :: isALexeme
@@ -23,8 +24,8 @@ module LexerModule
             type(Country), intent(inout) :: current_country
             type(Continent), intent(inout) :: current_continent
             type(Graph), intent(inout) :: current_graph
+            real :: continent_saturation
 
-            character(len=:), allocatable :: aux_str_collector
 
             isALexeme = .false.
 
@@ -327,10 +328,16 @@ module LexerModule
                     current_graph%continents(size(current_graph%continents))%countries &
                 )
 
+                ! Recalculate the saturation for the continente
+                continent_saturation = ((current_graph%continents(size(current_graph%continents))%saturation * (size(current_graph%continents(size(current_graph%continents))%countries) - 1)) + current_country%saturation) / size(current_graph%continents(size(current_graph%continents))%countries)
+
+                current_graph%continents(size(current_graph%continents))%saturation = continent_saturation
+                current_graph%continents(size(current_graph%continents))%color = get_saturation_color(continent_saturation)
+
                 ! We clean the continent and country properties to storage the next one
                 current_country%name = ""
                 current_country%population = 0
-                current_country%saturation = ""
+                current_country%saturation = 0
                 current_country%flag = ""
 
                 str_context = "grafica;continente"
@@ -344,7 +351,7 @@ module LexerModule
 
             valid = .false.
 
-            if(current_country%name /= "" .and. current_country%population > 0 .and. current_country%saturation /= "" .and. current_country%flag /= "") then
+            if(current_country%name /= "" .and. current_country%population > 0 .and. current_country%saturation > 0 .and. current_country%flag /= "") then
                 valid = .true.
             end if
 

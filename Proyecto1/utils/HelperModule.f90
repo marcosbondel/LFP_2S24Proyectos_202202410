@@ -19,6 +19,22 @@ module HelperModule
 
         end function parseStringToInt
 
+        function parseStringToDecimal(string) result(parsedValue) 
+            implicit none
+            
+            character(len=*), intent(in) :: string
+            integer :: ios
+            real :: parsedValue
+
+            ! Parse the string to an integer
+            read(string, *, iostat=ios) parsedValue
+    
+            ! Check for errors during the conversion
+            if (ios /= 0) then
+                print *, 'Error when parsing string to decimal!'
+            end if
+        end function parseStringToDecimal
+
         function isANumericValue(string) result(isANumber)
             implicit none
 

@@ -118,7 +118,6 @@ import subprocess
 
 # función que se ejecuta al presionar el botón "Analizar"
 def analize():
-    print("Analizando")
     # texto = text_area.get("1.0", END)
     # consola.config(state=NORMAL)
     # consola.delete("1.0", END)
@@ -130,14 +129,15 @@ def analize():
     
     # Ejecutar el programa Fortran y enviar el dato
     resultado = subprocess.run(
-        ["../built/main"],  # Ejecutable compilado
+        ["./built/main"],  # Ejecutable compilado
         input=dato,  # Enviar el dato como cadena de texto
         stdout=subprocess.PIPE,  # Capturar la salida del programa
         text=True  # Asegurarse de que la salida se maneje como texto
     )
 
     # Mostrar la salida en el área de texto
-    consola.insert(tk.END, resultado.stdout)
+    consola.insert(END, resultado.stdout)
+    print(resultado.stdout)
 
 def btn_abrir():
     archivo = open("./entrada.lfp", "r")
