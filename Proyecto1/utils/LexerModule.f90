@@ -10,7 +10,6 @@ module LexerModule
         function checkLexeme(str_collector, current_character, row, column, tokens, tokens_count, errors, errors_count, current_country, current_continent, current_graph, continents_count, str_context) result(isALexeme)
             implicit none
 
-            ! character(len=:), intent(in), allocatable :: str_collector
             character(len=:), intent(inout), allocatable :: str_collector, str_context
             character(len=*), intent(in) :: current_character
             character(len=:), allocatable :: aux_str_collector
@@ -205,7 +204,7 @@ module LexerModule
                     isALexeme = .true.
                 end if
 
-            else if(current_character == ";" .and. size(errors) == 0) then
+            else if(current_character == ";") then
 
                 ! we check if the previous content of the character ";" is a valid number
                 ! if so we save it as a "real"/"numeric" token
@@ -254,12 +253,11 @@ module LexerModule
 
                     call add_error(size(errors), new_error, errors)
 
-                    print *, "ERROR: current_character: ", current_character, ", buffer: ", str_collector
                     str_collector = ""
                 end if
             end if
             
-            if(current_character == '"' .and. size(errors) == 0) then
+            if(current_character == '"') then
                 
                 ! TODO: analyze strings separately
                 if(len(str_collector) > 1 .and. str_collector(1:1) == '"' .and. str_collector(len(str_collector):len(str_collector)) == '"') then

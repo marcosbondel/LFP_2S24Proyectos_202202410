@@ -1,11 +1,11 @@
 from tkinter import *
+from tkinter import messagebox as MessageBox
 from pathlib import Path
 import subprocess
 from graphviz import Digraph
 
 # Create a new directed graph
 dot = Digraph()
-
 data_graph = {}
 
 # función que se ejecuta al presionar el botón "Analizar"
@@ -24,17 +24,9 @@ def analize():
     if not resultado.stdout:
         return
 
-    # print("")
-    # print(resultado.stdout)
-    # print("")
-
-    output_lines = resultado.stdout.strip().split('\n')  # Dividir la salida en líneas
+    output_lines = resultado.stdout.strip().split('\n')
     graph = { "name": "", "continents": []}
     continents = []
-
-    # print("")
-    # print(output_lines)
-    # print("")
 
     for i in range(len(output_lines)):
         continent_contries_values = output_lines[i].split(";")
@@ -59,8 +51,6 @@ def analize():
             }
 
             graph["continents"].append(continent)
-        
-    print(graph) 
 
     dot.node(graph["name"], graph["name"])
 
@@ -75,14 +65,10 @@ def analize():
 
 
     dot.render('graph', format='png', cleanup=True)
-    # dot.view()
-    
-    # if(resultado.stdout):
-    #     print(resultado.stdout[0])
-    
-    # else:
-    #     print("ERROR EN EL ARCHIVO DE ENTRADA")
 
+
+def show_student_info():
+    MessageBox.showinfo("Datos estudiante", "202202410 - Marcos Daniel Bonifasi de Leon")
 
 
 def btn_abrir():
@@ -92,33 +78,53 @@ def btn_abrir():
     text_area.insert("1.0", texto)
     archivo.close()
 
-raiz = Tk()
+
+root = Tk()
+
+
+menubar = Menu(root)
+filemenu = Menu(menubar, tearoff=0)
+filemenu.add_command(label="Nuevo")
+filemenu.add_command(label="Abrir")
+filemenu.add_command(label="Guardar")
+filemenu.add_command(label="Guardar como")
+filemenu.add_separator()
+filemenu.add_command(label="Salir", command=root.quit)
+menubar.add_cascade(label="Archivo", menu=filemenu)
+
+filemenu_student = Menu(menubar, tearoff=0)
+filemenu_student.add_command(label="Datos estudiante", command=show_student_info)
+menubar.add_cascade(label="Acerca de", menu=filemenu_student)
+
+
 
 # etiqueta 
-etq = Label(raiz, text="EJEMPLO ANALIZADOR LÉXICO")
+etq = Label(root, text="EJEMPLO ANALIZADOR LÉXICO")
 etq.pack()
 
 # area de texto para el código fuente
-text_area = Text(raiz, width=70, height=30)
+text_area = Text(root, width=70, height=30)
 text_area.place(x=30, y=50)
 
 # igual al anterior text_area pero va ser utilizado como consola para mostrar los resultados
-consola = Text(raiz, width=72, height=30)
+consola = Text(root, width=72, height=30)
 consola.config(state=DISABLED)
 consola.place(x=600, y=50)
 
 # botón para analizar el código fuente
-boton = Button(raiz, text="Analizar", width=10, height=2, command=analize)
+boton = Button(root, text="Analizar", width=10, height=2, command=analize)
 boton.place(x=570, y=550)
 
-boton_salir = Button(raiz, text="Salir", width=10, height=2, command=raiz.quit)
+boton_salir = Button(root, text="Salir", width=10, height=2, command=root.quit)
 boton_salir.place(x=670, y=550)
 
-boton_abrir = Button(raiz, text="Abrir", width=10, height=2, command=btn_abrir)
+boton_abrir = Button(root, text="Abrir", width=10, height=2, command=btn_abrir)
 boton_abrir.place(x=470, y=550)
 
+root.config(menu=menubar)
+
 # tamaño de la ventana principal (ancho x alto)
-raiz.geometry("1200x600")
+root.geometry("1200x600")
 # título de la ventana principal
-raiz.title("LFP - Analizador Léxico")
-raiz.mainloop()
+root.title("LFP - Analizador Léxico")
+root.mainloop()

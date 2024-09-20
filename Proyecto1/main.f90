@@ -38,7 +38,6 @@ program main
     current_country%population = 0
     current_country%flag = ""
     current_country%saturation = 0
-    
 
     ! Reading the file, line by line
     ! In each iteration we check if the character(s) belong to the language
