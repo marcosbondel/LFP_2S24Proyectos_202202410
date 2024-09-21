@@ -1,8 +1,0 @@
-digraph {
-	A [label="Node A"]
-	B [label="Node B"]
-	C [label="Node C"]
-	A -> B [label="Edge from A to B"]
-	B -> C [label="Edge from B to C"]
-	A -> C [label="Edge from A to C"]
-}
