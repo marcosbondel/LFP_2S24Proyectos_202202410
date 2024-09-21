@@ -19,6 +19,7 @@
 
 # Fortran module files
 *.mod
+**.mod
 *.smod
 bfile.mod
 
@@ -38,3 +39,5 @@ bfile.mod
 # Custom ignores
 main.dSYM
 main
+*.ORG
+**.ORG
