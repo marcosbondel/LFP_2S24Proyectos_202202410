@@ -181,13 +181,6 @@ image_label.place(x=80, y=500)
 boton = Button(root, text="Analizar", width=10, height=2, command=analize)
 boton.place(x=1050, y=100)
 
-# boton_salir = Button(root, text="Salir", width=10, height=2, command=root.quit)
-# boton_salir.place(x=670, y=550)
-
-# boton_abrir = Button(root, text="Abrir", width=10, height=2, command=btn_abrir)
-# boton_abrir.place(x=470, y=550)
-
-
 root.config(menu=menubar)
 
 root.title("LFP - Analizador Léxico")
