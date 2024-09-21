@@ -275,24 +275,8 @@ module LexerModule
 
                     call add_field_value(current_graph, current_continent, current_country, aux_str_collector, str_context)
 
-                    
                     isALexeme = .true.
                 end if
-            else
-                ! if (current_character /= ' ' .and. current_character /= '\t' .and. &
-                !     current_character /= '\r' .and. current_character /= '\f' .and. &
-                !     current_character /= '\0' .and. .not. ((current_character >= 'a' .and. current_character <= 'z') .or. &
-                !     (current_character >= 'A' .and. current_character <= 'Z'))) then 
-                    
-                ! end if
-                ! if(current_character /= ' ' .and. current_character /= '\t' .and. &
-                !     current_character /= '\r' .and. current_character /= '\f' .and. &
-                !     current_character /= '\0' .and. .not. ((current_character >= 'a' .and. current_character <= 'z') .and. &
-                !     .not. (current_character >= 'A' .and. current_character <= 'Z')) .and. &
-                !     .not. isANumericValue(current_character) ) then
-                
-                !     print *, "ERROR: current_character: ", current_character, ", buffer: ", str_collector
-                ! end if
             end if
 
             if(current_continent%name /= "" .and. size(errors) == 0) then
