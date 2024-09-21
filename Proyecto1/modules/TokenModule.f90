@@ -47,7 +47,7 @@ module TokenModule
             type(Token), intent(in), allocatable :: tokens(:)
             integer :: i, ios
             ! Abrir archivo HTML
-            open(unit=20, file="tokens.html", status="replace", action="write", iostat=ios)
+            open(unit=20, file="./Proyecto1/temp/tokens.html", status="replace", action="write", iostat=ios)
 
             if (ios /= 0) then
                 print *, "Error al abrir el archivo."

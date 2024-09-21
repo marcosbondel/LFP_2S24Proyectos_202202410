@@ -48,7 +48,7 @@ module ErrorModule
             type(Error), intent(in), allocatable :: errors(:)
             integer :: i, ios
             ! Abrir archivo HTML
-            open(unit=10, file="errors.html", status="replace", action="write", iostat=ios)
+            open(unit=10, file="./Proyecto1/temp/errors.html", status="replace", action="write", iostat=ios)
 
             if (ios /= 0) then
                 print *, "Error al abrir el archivo."

@@ -41,5 +41,4 @@ main.dSYM
 main
 *.ORG
 **.ORG
-./Proyecto1/errors.html
-./Proyecto1/tokens.html
+./Proyecto1/temp/*

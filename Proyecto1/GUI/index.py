@@ -18,15 +18,14 @@ graph_images_counter = 0
 def analize():
     # Obtener el dato ingresado en la entrada
     data = text_area.get("1.0", END)
-    
+
     if data.strip() == "":
-        MessageBox.showinfo("Informaicon", "Debe ingresar texto")
+        MessageBox.showinfo("Informacion", "Debe ingresar texto")
         return
 
-    
     # Ejecutar el programa Fortran y enviar el dato
     result = subprocess.run(
-        ["./built/main"],  # Ejecutable compilado
+        ["./Proyecto1/built/main"],  # Ejecutable compilado
         input=data,  # Enviar el dato como cadena de texto
         stdout=subprocess.PIPE,  # Capturar la salida del programa
         text=True  # Asegurarse de que la salida se maneje como texto
@@ -76,7 +75,7 @@ def analize():
     global graph_images_counter
     graph_images_counter += 1
 
-    dot.render(f"graph{graph_images_counter}", format='png', cleanup=True)
+    dot.render(f"./Proyecto1/temp/graph{graph_images_counter}", format='png', cleanup=True)
     load_image_graph()
 
 
@@ -99,6 +98,12 @@ def open_file():
         root.title(path + " - Mi editor")
 
 def save():
+    data = text_area.get("1.0", END)
+
+    if data.strip() == "":
+        MessageBox.showinfo("Informacion", "Debe ingresar texto")
+        return
+
     if path != "":
         content = text_area.get(1.0,'end-1c')
         fichero = open(path, 'w+')
@@ -111,6 +116,12 @@ def save_as():
     global path
 
     fichero = FileDialog.asksaveasfile(title="Guardar fichero", mode="w", defaultextension=".ORG")
+
+    data = text_area.get("1.0", END)
+
+    if data.strip() == "":
+        MessageBox.showinfo("Informacion", "Debe ingresar texto")
+        return
 
     if fichero is not None:
         path = fichero.name
@@ -128,7 +139,7 @@ def load_image_graph():
     if graph_images_counter == 0:
         return
 
-    image = Image.open(f"graph{graph_images_counter}.png")
+    image = Image.open(f"./Proyecto1/temp/graph{graph_images_counter}.png")
     photo = ImageTk.PhotoImage(image)
     
     # Update the label with the image
