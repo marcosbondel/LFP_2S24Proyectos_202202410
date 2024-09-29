@@ -72,6 +72,24 @@ Si el text no contiene ningun error lexicografico nos mostrara el grafo del AFD,
 
 ---------
 
+### Guardar
+
+1. Escribe en el área de texto.
+2. Haz clic en **Guardar**.
+3. Si ya has abierto un archivo, se sobrescribirá. Si no, se te pedirá que uses **Guardar como**.
+
+
+---------
+
+### Guardar como
+
+1. Escribe en el área de texto.
+2. Haz clic en **Guardar como**.
+3. Selecciona la ubicación y el nombre del archivo en el explorador que aparece, luego haz clic en **Guardar**.
+
+
+---------
+
 ### Datos estudiante
 Para mostrar los datos del estudiante damos clic en `Acerca de > Datos estudiante` en el menu.
 
@@ -81,4 +99,6 @@ Para mostrar los datos del estudiante damos clic en `Acerca de > Datos estudiant
 
 ## Finalizar App
 
-Para finalizar la aplicación basta con dar clic en el boton `x` en la esquina superior derecha.
+Para finalizar la aplicación basta con dar clic en el boton `x` en la esquina superior derecha o la opción `Menu > Salir` del menú.
+
+![Inicio app](./screenshots_guide/ug_9.png)
