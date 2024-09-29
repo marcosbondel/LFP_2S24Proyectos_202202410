@@ -42,3 +42,4 @@ main
 *.ORG
 **.ORG
 ./Proyecto1/temp/*
+Proyecto1/temp/**

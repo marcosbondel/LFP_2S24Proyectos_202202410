@@ -148,6 +148,8 @@ def load_image_graph():
     # Keep a reference to the image to prevent garbage collection
     image_label.image = photo
 
+def clear_text():
+    text_area.delete('1.0', END)
 
 root = Tk()
 
@@ -173,13 +175,14 @@ etq.pack()
 text_area = Text(root, width=140, height=30)
 text_area.place(x=20, y=30)
 
-# igual al anterior text_area pero va ser utilizado como consola para mostrar los resultados
 image_label = Label(root)
 image_label.place(x=80, y=500)
 
-# botón para analizar el código fuente
-boton = Button(root, text="Analizar", width=10, height=2, command=analize)
-boton.place(x=1050, y=100)
+btnAnalyze = Button(root, text="Analizar", width=10, height=2, command=analize)
+btnAnalyze.place(x=1050, y=100)
+
+btnClear = Button(root, text="Limpiar", width=10, height=2, command=clear_text)
+btnClear.place(x=1050, y=200)
 
 root.config(menu=menubar)
 
