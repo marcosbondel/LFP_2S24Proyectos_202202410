@@ -23,4 +23,4 @@ Luego procedemos a ejecutar la aplicación de escritorio por me dio de la termin
 
 Te deberia abrir el una ventana emergente mostrando lo siguiente.
 
-[Inicio app](./screenshots_guide/ug_1.png)
+![Inicio app](./screenshots_guide/ug_1.png)
