@@ -1,4 +1,5 @@
-module tokens
+module TokenModule
+    implicit none
 
     type :: Token
         integer :: no
@@ -8,4 +9,4 @@ module tokens
         integer :: column
     end type    
 
-end module token
+end module TokenModule

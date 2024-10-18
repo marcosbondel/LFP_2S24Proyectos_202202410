@@ -15,6 +15,22 @@ In order to execute this program, please run the following commands through the 
     python3 ./Proyecto1/GUI/index.py
 ```
 
+
+```bash
+    # 1. Generate executable (compiled)
+
+    gfortran ./Proyecto2/transpiler/src/modules/token.f90 ./Proyecto2/transpiler/src/modules/error.f90 ./Proyecto2/transpiler/src/tools/scanner.f90 ./Proyecto2/transpiler/src/tools/parser.f90 ./Proyecto2/transpiler/src/transpiler.f90 -o ./Proyecto2/transpiler/built/transpiler
+
+    # 2. Run executable
+    ./Proyecto2/built/main
+
+    # 3. Run Desktop app
+    python3 ./Proyecto2/main.py
+```
+
+
+
+
 ## Troubleshooting
 
 It seems like Anaconda uses another version of a certain Python/PIP library

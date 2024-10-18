@@ -1,22 +1,26 @@
-program transpiler
+program Transpiler
     ! Import module in use
+    use LexicalAnalyzer
+    use SyntaxAnalyzer
     implicit none
 
-    ! Variables declaration
-    integer :: i, j, len_temp, line_len, row_index, tokens_count, errors_count, continents_count
-    character(len=:), allocatable :: input_text
+    integer :: len_temp, ios
+    character(len=:), allocatable :: character_stream
     character(len=256) :: temp
+
+    ! Compiler components
+    type(Scanner) :: lexical_analyzer
+    type(Parser) :: syntax_analyzer
 
     ! Data persistance vectors
     type(Token), allocatable :: tokens(:)
     type(Error), allocatable :: errors(:)
 
-    ! Init values
-    row_index = 1
-    tokens_count = 0
-    errors_count = 0
+    print *, "Hola mundo"
 
 
-    ! We handle the entry and send it to the Lexical analyzer (Scanner) 
+    ! We let the Scanner handle the input stream
 
-end program transpiler
+    call lexical_analyzer%analyze(character_stream)
+
+end program Transpiler

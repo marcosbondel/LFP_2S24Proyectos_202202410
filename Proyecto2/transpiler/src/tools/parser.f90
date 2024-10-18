@@ -1,6 +1,8 @@
-module parser
-
-        
+module SyntaxAnalyzer
 
 
-end module parser
+    type :: Parser
+
+    end type
+
+end module SyntaxAnalyzer
