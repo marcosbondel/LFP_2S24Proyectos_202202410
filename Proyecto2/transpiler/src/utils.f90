@@ -35,23 +35,72 @@ module Utils
             end if
         end function parseStringToDecimal
 
-        function isANumericValue(string) result(isANumber)
+        function is_numeric_value(string) result(is_numeric)
             implicit none
 
             character(len=*), intent(in) :: string
-            integer :: ios, parsedValue
-            logical :: isANumber
+            integer :: ios, parsed_value
+            logical :: is_numeric
 
-            isANumber = .true.
+            is_numeric = .true.
 
             ! Parse the string to an integer
-            read(string, '(I10)', IOSTAT=ios) parsedValue
+            read(string, '(I10)', IOSTAT=ios) parsed_value
 
             ! Check for errors during the conversion
             if (ios /= 0) then
-                isANumber = .false.
+                is_numeric = .false.
             end if
-        end function isANumericValue
+        end function is_numeric_value
+
+        function is_number(str) result(numeric)
+            implicit none
+
+            character(len=*), intent(in) :: str
+            integer :: i, n, dot_count, minus_count
+            logical :: valid, numeric
+
+            numeric = .false.
+
+            n = len_trim(str)
+
+            ! Check for empty string
+            if (n == 0) then
+                return  ! An empty string is not a number
+            end if
+
+            dot_count = 0
+            minus_count = 0
+            valid = .true.
+
+            do i = 1, n
+                select case (str(i:i))
+                case ('0':'9')
+                    ! Valid character
+                case ('-')
+                    if (i /= 1) then
+                        valid = .false.
+                        exit
+                    end if
+                    minus_count = minus_count + 1
+                    if (minus_count > 1) then
+                        valid = .false.
+                        exit
+                    end if
+                case ('.')
+                    dot_count = dot_count + 1
+                    if (dot_count > 1) then
+                        valid = .false.
+                        exit
+                    end if
+                case default
+                    valid = .false.
+                    exit
+                end select
+            end do
+
+            numeric = valid .and. (minus_count <= 1) .and. (dot_count <= 1)
+        end function is_number
 
         function to_lower_case(string) result(lower_case)
             implicit none
@@ -75,23 +124,105 @@ module Utils
 
             character(len=*), intent(in) :: string
             character(len=len(string)) :: output_string
-            character :: tabChar
+            character :: tabChar, newLineLF, newLineCR
             integer :: i, pos
 
-            tabChar = char(9)  ! Tab character
-            output_string = ''  ! Initialize the result string as empty
-            pos = 1            ! Position in the result string
+            tabChar = char(9)        ! Tab character
+            newLineLF = achar(10)    ! Line Feed (LF) - Unix-like systems
+            newLineCR = achar(13)    ! Carriage Return (CR) - Windows systems
+            output_string = ''       ! Initialize the result string as empty
+            pos = 1                  ! Position in the result string
 
             ! Loop through each character in the input string
             do i = 1, len_trim(string)
-                if (string(i:i) /= tabChar) then
-                    output_string(pos:pos) = string(i:i)  ! Copy non-tab characters
-                    pos = pos + 1                             ! Move to the next position
+                if (string(i:i) /= tabChar .and. string(i:i) /= newLineLF .and. string(i:i) /= newLineCR) then
+                    output_string(pos:pos) = string(i:i)  ! Copy non-tab and non-newline characters
+                    pos = pos + 1                          ! Move to the next position
                 end if
             end do
 
-            ! Trim the output string to remove extra spaces
+            ! Trim the output string to remove any trailing spaces
             output_string = trim(output_string)
+
         end function clean_string
 
+        logical function is_alpha(c)
+            implicit none
+            
+            character(len=1), intent(in) :: c
+            integer :: ascii_val
+
+            ascii_val = iachar(c)
+            is_alpha = (ascii_val >= iachar('A') .and. ascii_val <= iachar('Z')) .or. &
+                    (ascii_val >= iachar('a') .and. ascii_val <= iachar('z'))
+        end function is_alpha
+
+        function is_delimiter(c) result(delimiter)
+            implicit none
+
+            character(len=1), intent(in) :: c
+            logical :: delimiter
+
+            delimiter = .false.
+
+            if( c == ";") then
+                delimiter = .true.
+            else if( c == "*") then
+                delimiter = .true.
+            else if( c == "/") then
+                delimiter = .true.
+            else if( c == "\") then
+                delimiter = .true.
+            else if( c == "(") then
+                delimiter = .true.
+            else if( c == ")") then
+                delimiter = .true.
+            else if( c == ".") then
+                delimiter = .true.
+            else if( c == ",") then
+                delimiter = .true.
+            else if( c == "$") then
+                delimiter = .true.
+            else if( c == "#") then
+                delimiter = .true.
+            else if( c == "-") then
+                delimiter = .true.
+            else if( c == ">") then
+                delimiter = .true.
+            end if 
+
+        end function is_delimiter
+
+
+        function get_delimiter_name(c) result(delimiter_name)
+            implicit none
+
+            character(len=1), intent(in) :: c
+            character(len=:), allocatable :: delimiter_name
+
+            delimiter_name = ""
+
+            if( c == ";") then
+                delimiter_name = "PUNTO_Y_COMA"
+            else if( c == "*") then
+                delimiter_name = "ASTERISCO"
+            else if( c == "/") then
+                delimiter_name = "BARRA_DIAGONAL"
+            else if( c == "\") then
+                delimiter_name = "BARRA_INVERSA"
+            else if( c == "(") then
+                delimiter_name = "PARENTESIS_ABRE"
+            else if( c == ")") then
+                delimiter_name = "PARENTESIS_CIERRE"
+            else if( c == "$") then
+                delimiter_name = "DOLLAR"
+            else if( c == "#") then
+                delimiter_name = "NUMERAL"
+            else if( c == "-") then
+                delimiter_name = "GUION"
+            else if( c == ">") then
+                delimiter_name = "MAYOR_QUE"
+            end if 
+
+        end function get_delimiter_name
 end module Utils

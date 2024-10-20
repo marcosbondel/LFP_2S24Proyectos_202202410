@@ -1,35 +1,45 @@
 module LexicalAnalyzer
     use TokenModule
     use ErrorModule
+    use Utils
     implicit none
 
     type :: Scanner
+        integer :: current_state
+        integer :: no_tokens ! number of tokens
         type(Token), allocatable :: tokens(:)
         type(Error), allocatable :: errors(:)
+        character(len=:), allocatable :: str_collector
 
         contains
             procedure :: analyze
+            procedure :: build_token
+            procedure :: add_token
     end type
 
     contains
 
         subroutine analyze(self, character_stream)
+            implicit none
 
-            class(Scanner), intent(in) :: self
+            class(Scanner), intent(inout) :: self
 
             integer :: i, j, ios, len_temp
             character(len=:), intent(inout), allocatable :: character_stream
-            character(len=:), allocatable :: str_collector
+            ! character(len=:), allocatable :: str_collector
             character(len=256) :: temp
-
 
             ! Init values
             j = 1
+            self%str_collector = ""
+            self%current_state = 0
+            self%no_tokens = 0
+            allocate(self%tokens(0))
 
             ! We handle the input stream
             do
-                read(*, '(A)', IOSTAT=ios) temp
-
+                read(*, '(A)', IOSTAT=len_temp, END=10) temp
+                
                 ! Trim and allocate space for the input
                 len_temp = len_trim(temp)
                 allocate(character(len=len_temp) :: character_stream)
@@ -38,11 +48,123 @@ module LexicalAnalyzer
                 i = 1
 
                 do while( i <= len(character_stream) )
-                    str_collector = trim(str_collector) // clean_string(trim(input_text(i:i)))
-                    
-                    ! if (checkLexeme(str_collector, input_text(i:i), row_index, i, tokens, tokens_count, errors, errors_count, current_country, current_continent, current_graph, continents_count, str_context)) then
+                    ! We sanitize/clean the string from empty spaces and break lines
+                    self%str_collector = trim(self%str_collector) // clean_string(trim(character_stream(i:i)))
+
+                    ! if (checkLexeme(str_collector, character_stream(i:i), row_index, i, tokens, tokens_count, errors, errors_count, current_country, current_continent, current_graph, continents_count, str_context)) then
                     !     str_collector = ""
                     ! end if
+
+
+                    ! STATUS 0 - Controles block
+                    if(self%str_collector == '<') then
+                        call self%build_token(i, j, '<', 'MENOR_QUE')
+                    else if(self%str_collector == '!') then
+                        call self%build_token(i, j, '!', 'EXCLAMACION')
+                    else if(self%str_collector == '-') then
+                        call self%build_token(i, j, '-', 'GUION')
+
+                    else if(self%str_collector == 'Controles') then
+                        call self%build_token(i, j, 'Controles', 'BLOQUE_CONTROLES')
+                    else if(self%str_collector == 'Boton') then
+                        call self%build_token(i, j, 'Boton', 'BOTON')
+                    else if(self%str_collector == 'Etiqueta') then
+                        call self%build_token(i, j, 'Etiqueta', 'ETIQUETA')
+                    else if(self%str_collector == 'Check') then
+                        call self%build_token(i, j, 'Check', 'CHECK')
+                    else if(self%str_collector == 'RadioBoton') then
+                        call self%build_token(i, j, 'RadioBoton', 'RADIO_BOTON')
+                    else if(self%str_collector == 'Texto' .and. character_stream(i + 1:i + 1) == ' ') then
+                        call self%build_token(i, j, 'Texto', 'TEXTO')
+                    else if(self%str_collector == 'AreaTexto') then
+                        call self%build_token(i, j, 'AreaTexto', 'AREA_TEXTO')
+                    else if(self%str_collector == 'Clave') then
+                        call self%build_token(i, j, 'Clave', 'CLAVE')
+                    else if(self%str_collector == 'Contenedor') then
+                        call self%build_token(i, j, 'Contenedor', 'CONTENEDOR')
+                    else if(self%str_collector == '>') then
+                        call self%build_token(i, j, '>', 'MAYOR_QUE')
+                    else if(self%str_collector == ';') then
+                        call self%build_token(i, j, ';', 'PUNTO_Y_COMA')
+                    
+                    ! propiedades block
+                    else if(self%str_collector == 'propiedades') then
+                        call self%build_token(i, j, 'propiedades', 'BLOQUE_PROPIEDADES')
+                    else if(self%str_collector == '.') then
+                        call self%build_token(i, j, '.', 'PUNTO')
+                    else if(self%str_collector == ',') then
+                        call self%build_token(i, j, ',', 'COMA')
+                    else if(self%str_collector == '(') then
+                        call self%build_token(i, j, '(', 'PARENTESIS_ABRE')
+                    else if(self%str_collector == ')') then
+                        call self%build_token(i, j, ')', 'PARENTESIS_CIERRE')
+                    else if(self%str_collector == 'setColorLetra') then
+                        call self%build_token(i, j, 'setColorLetra', 'PROPIEDAD')
+                    else if(self%str_collector == 'setTexto') then
+                        call self%build_token(i, j, 'setTexto', 'PROPIEDAD')
+                    else if(self%str_collector == 'setAlineacion') then
+                        call self%build_token(i, j, 'setAlineacion', 'PROPIEDAD')
+                    else if(self%str_collector == 'setColorFondo') then
+                        call self%build_token(i, j, 'setColorFondo', 'PROPIEDAD')
+                    else if(self%str_collector == 'setMarcada') then
+                        call self%build_token(i, j, 'setMarcada', 'PROPIEDAD')
+                    else if(self%str_collector == 'setGrupo') then
+                        call self%build_token(i, j, 'setGrupo', 'PROPIEDAD')
+                    else if(self%str_collector == 'setAncho') then
+                        call self%build_token(i, j, 'setAncho', 'PROPIEDAD')
+                    else if(self%str_collector == 'setAlto') then
+                        call self%build_token(i, j, 'setAlto', 'PROPIEDAD')
+                    else if(self%str_collector == 'true') then
+                        call self%build_token(i, j, 'true', 'VALOR_PROPIEDAD')
+                    else if(self%str_collector == 'false') then
+                        call self%build_token(i, j, 'false', 'VALOR_PROPIEDAD')
+                    else if(self%str_collector == 'centro') then
+                        call self%build_token(i, j, 'centro', 'VALOR_PROPIEDAD')
+                    else if(self%str_collector == 'izquierdo') then
+                        call self%build_token(i, j, 'izquierdo', 'VALOR_PROPIEDAD')
+                    else if(self%str_collector == 'derecho') then
+                        call self%build_token(i, j, 'derecho', 'VALOR_PROPIEDAD')
+                    
+                    else if(self%str_collector == '"') then
+                        call self%build_token(i, j, '"', 'COMILLAS_DOBLES')
+                    
+
+                    ! Colocacion block
+                    else if(self%str_collector == 'Colocacion') then
+                        call self%build_token(i, j, 'Colocacion', 'COLOCACION')
+                    else if(self%str_collector == 'setPosicion') then
+                        call self%build_token(i, j, 'setPosicion', 'COLOCACION_SET_POSICION')
+                    else if(self%str_collector == 'add') then
+                        call self%build_token(i, j, 'add', 'COLOCACION_ADD')
+                    else if(self%str_collector == 'this') then
+                        call self%build_token(i, j, 'this', 'COLOCACION_THIS')
+ 
+
+                    ! Support for comments ????
+                    else if(self%str_collector == '/') then
+                        call self%build_token(i, j, '/', 'BARRA_DIAGONAL')
+                    else if(self%str_collector == '\') then
+                        call self%build_token(i, j, '\', 'BARRA_INVERSA')
+                    else if(self%str_collector == '*') then
+                        call self%build_token(i, j, '*', 'ASTERISCO')
+                    else if(self%str_collector == '#') then
+                        call self%build_token(i, j, '#', 'NUMERAL')
+                    else if(self%str_collector == '$') then
+                        call self%build_token(i, j, '$', 'DOLAR')
+
+                    ! We check if the buffer contains an identifier
+                    else if(is_delimiter(character_stream(i:i)) .and. is_alpha(self%str_collector(1:1))) then
+                        call self%build_token(i, j, self%str_collector(1:len(self%str_collector) - 1), 'IDENTIFICADOR', .false.)
+                        call self%build_token(i, j, character_stream(i:i), get_delimiter_name(character_stream(i:i)), .false.)
+                        self%str_collector = "" ! We clean the buffer
+                    ! We check if the buffer contains a number
+                    else if(is_delimiter(character_stream(i:i)) .and. is_number(self%str_collector(1:len(self%str_collector) - 1))) then
+                        call self%build_token(i, j, self%str_collector(1:len(self%str_collector) - 1), 'NUMERO', .false.)
+                        call self%build_token(i, j, character_stream(i:i), get_delimiter_name(character_stream(i:i)), .false.)
+                        self%str_collector = "" ! We clean the buffer
+                    else
+                        ! We save errors
+                    end if
 
                     i = i + 1
                 end do
@@ -53,8 +175,66 @@ module LexicalAnalyzer
                 deallocate(character_stream)
             end do
 
+            10 continue
 
         end subroutine analyze
 
+
+        subroutine build_token(self, i, j, character_, lex_type, clean_str_collector)
+            implicit none
+
+            class(Scanner), intent(inout) :: self
+            character(len=*) :: character_, lex_type
+            integer, intent(in) :: i, j
+            logical, intent(in), optional :: clean_str_collector
+
+            type(Token) :: new_lexeme
+            
+            new_lexeme%no = self%no_tokens
+            new_lexeme%lexeme = trim(character_)
+            new_lexeme%lex_type = lex_type
+            new_lexeme%row = i
+            new_lexeme%column = j
+
+            call self%add_token(self%no_tokens, new_lexeme)
+
+            self%no_tokens = self%no_tokens + 1
+
+            if( .not. present(clean_str_collector)) then
+                self%str_collector = "" ! We clean the buffer
+            end if
+
+            
+        end subroutine build_token
+
+        subroutine add_token(self, length, newRecord)
+            implicit none
+
+            class(Scanner), intent(inout) :: self
+
+            integer :: i
+            integer, intent(in) :: length
+            type(Token), intent(in) :: newRecord
+
+            type(Token), allocatable :: tempRecords(:)
+
+            ! The temprary array will always be greater than the actual array
+            allocate(tempRecords(length + 1))
+
+            do i = 1, size(self%tokens)
+                tempRecords(i) = self%tokens(i)
+            end do
+
+            ! We add the new record
+            tempRecords(length + 1) = newRecord
+
+            if(allocated(self%tokens)) then
+                deallocate(self%tokens)
+            end if
+
+            allocate(self%tokens(length + 1))
+
+            self%tokens = tempRecords
+        end subroutine add_token
 
 end module LexicalAnalyzer

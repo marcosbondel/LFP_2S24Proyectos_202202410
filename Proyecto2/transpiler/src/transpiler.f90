@@ -4,17 +4,12 @@ program Transpiler
     use SyntaxAnalyzer
     implicit none
 
-    integer :: len_temp, ios
     character(len=:), allocatable :: character_stream
-    character(len=256) :: temp
 
     ! Compiler components
     type(Scanner) :: lexical_analyzer
     type(Parser) :: syntax_analyzer
-
-    ! Data persistance vectors
-    type(Token), allocatable :: tokens(:)
-    type(Error), allocatable :: errors(:)
+    integer :: i
 
     print *, "Hola mundo"
 
@@ -22,5 +17,12 @@ program Transpiler
     ! We let the Scanner handle the input stream
 
     call lexical_analyzer%analyze(character_stream)
+
+
+    do i = 1, size(lexical_analyzer%tokens), 1
+
+        print *, trim(lexical_analyzer%tokens(i)%lexeme)
+
+    end do
 
 end program Transpiler
