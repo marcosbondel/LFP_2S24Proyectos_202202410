@@ -51,10 +51,6 @@ module LexicalAnalyzer
                     ! We sanitize/clean the string from empty spaces and break lines
                     self%str_collector = trim(self%str_collector) // clean_string(trim(character_stream(i:i)))
 
-                    ! if (checkLexeme(str_collector, character_stream(i:i), row_index, i, tokens, tokens_count, errors, errors_count, current_country, current_continent, current_graph, continents_count, str_context)) then
-                    !     str_collector = ""
-                    ! end if
-
 
                     ! STATUS 0 - Controles block
                     if(self%str_collector == '<') then
@@ -63,7 +59,6 @@ module LexicalAnalyzer
                         call self%build_token(i, j, '!', 'EXCLAMACION')
                     else if(self%str_collector == '-') then
                         call self%build_token(i, j, '-', 'GUION')
-
                     else if(self%str_collector == 'Controles') then
                         call self%build_token(i, j, 'Controles', 'BLOQUE_CONTROLES')
                     else if(self%str_collector == 'Boton') then
@@ -164,6 +159,7 @@ module LexicalAnalyzer
                         self%str_collector = "" ! We clean the buffer
                     else
                         ! We save errors
+                        ! print *, "ERROR: ", character_stream(i:i), self%str_collector
                     end if
 
                     i = i + 1
@@ -204,29 +200,28 @@ module LexicalAnalyzer
                 self%str_collector = "" ! We clean the buffer
             end if
 
-            
         end subroutine build_token
 
-        subroutine add_token(self, length, newRecord)
+        subroutine add_token(self, length, new_record)
             implicit none
 
             class(Scanner), intent(inout) :: self
 
             integer :: i
             integer, intent(in) :: length
-            type(Token), intent(in) :: newRecord
+            type(Token), intent(in) :: new_record
 
-            type(Token), allocatable :: tempRecords(:)
+            type(Token), allocatable :: temp_records(:)
 
             ! The temprary array will always be greater than the actual array
-            allocate(tempRecords(length + 1))
+            allocate(temp_records(length + 1))
 
             do i = 1, size(self%tokens)
-                tempRecords(i) = self%tokens(i)
+                temp_records(i) = self%tokens(i)
             end do
 
             ! We add the new record
-            tempRecords(length + 1) = newRecord
+            temp_records(length + 1) = new_record
 
             if(allocated(self%tokens)) then
                 deallocate(self%tokens)
@@ -234,7 +229,7 @@ module LexicalAnalyzer
 
             allocate(self%tokens(length + 1))
 
-            self%tokens = tempRecords
+            self%tokens = temp_records
         end subroutine add_token
 
 end module LexicalAnalyzer

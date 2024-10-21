@@ -225,4 +225,60 @@ module Utils
             end if 
 
         end function get_delimiter_name
+
+        ! This Subroutine is thought to implement dynamic memory management
+        subroutine add_record(length, new_record, records)
+            implicit none
+
+            integer :: i
+            integer, intent(in) :: length
+            character(len=*), intent(in) :: new_record
+            ! type(Token), intent(in) :: new_record
+
+            ! type(Token), intent(inout), allocatable :: records(:)
+            ! character(len=:), intent(inout), allocatable :: records(:)
+            character(len=:), allocatable, intent(inout) :: records(:)
+            character(len=:), allocatable :: temp_records(:)
+            ! type(Token), allocatable :: temp_records(:)
+
+
+            ! The temprary array will always be greater than the actual array
+            allocate(temp_records(length + 1), source=records)
+
+            do i = 1, size(records) 
+                temp_records(i) = records(i)
+            end do
+
+            ! We add the new record
+            temp_records(length + 1) = new_record
+
+            if(allocated(records)) then
+                deallocate(records)
+            end if
+
+            allocate(records(length + 1), source=records)
+
+            records = temp_records
+        end subroutine add_record
+
+        ! Function to reverse a string
+        function reverse_string(str) result(reversed)
+            implicit none
+            character(len=*), intent(in) :: str
+            character(len=len(str)) :: reversed
+            integer :: i, len_str
+
+            ! Get the length of the input string
+            len_str = len_trim(str)
+
+            ! Traverse the string from the end to the beginning
+            do i = 1, len_str
+                reversed(i:i) = str(len_str - i + 1:len_str - i + 1)
+            end do
+
+            ! Fill the remaining characters with spaces (if the input string was shorter than the declared length)
+            if (len_str < len(reversed)) reversed(len_str+1:) = ' '
+
+        end function reverse_string
+
 end module Utils
