@@ -368,13 +368,13 @@ module SyntaxAnalyzer
             end if
 
             ! Write the HTML content to the file
-            ! write(10,*) '<!DOCTYPE html>'
-
+            write(10,*) '<!DOCTYPE html>'
             write(10,*) '<html lang="en">'
             write(10,*) '<head>'
             write(10,*) '    <meta charset="UTF-8">'
             write(10,*) '    <meta name="viewport" content="width=device-width, initial-scale=1.0">'
-            write(10,*) '    <title>Document</title>'
+            write(10,*) '    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">'
+            write(10,*) '    <title>Transpilador LFP</title>'
             write(10,*) '</head>'
             write(10,*) '<body>'
 
@@ -389,8 +389,6 @@ module SyntaxAnalyzer
             ! Close the file
             close(10)
 
-            ! Notify the user
-            ! print *, 'HTML file created successfully: ', file_name
         end subroutine create_files
 
 end module SyntaxAnalyzer
