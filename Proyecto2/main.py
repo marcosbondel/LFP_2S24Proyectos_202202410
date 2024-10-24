@@ -178,9 +178,6 @@ text_area.place(x=20, y=30)
 text_area.insert(END, '''
 <!--Controles
 //#$comentario
-/*
-    COMENTRAIO DE VARIAS LINEAS
-*/
 Contenedor contlogin;
 Contenedor contFondo; 
 Boton cmdIngresar; 

@@ -20,6 +20,8 @@ In order to execute this program, please run the following commands through the 
     # 1. Generate executable (compiled)
 
     gfortran ./Proyecto2/transpiler/src/modules/token.f90 ./Proyecto2/transpiler/src/modules/error.f90 ./Proyecto2/transpiler/src/tools/scanner.f90 ./Proyecto2/transpiler/src/tools/parser.f90 ./Proyecto2/transpiler/src/utils.f90 ./Proyecto2/transpiler/src/transpiler.f90 -o ./Proyecto2/transpiler/built/transpiler
+    
+    gfortran ./Proyecto2/transpiler/src/modules/token.f90 ./Proyecto2/transpiler/src/modules/error.f90 ./Proyecto2/transpiler/src/modules/control.f90 ./Proyecto2/transpiler/src/tools/scanner.f90 ./Proyecto2/transpiler/src/tools/parser.f90 ./Proyecto2/transpiler/src/utils.f90 ./Proyecto2/transpiler/src/transpiler.f90 -o ./Proyecto2/transpiler/built/transpiler
 
     # 2. Run executable
     ./Proyecto2/built/main

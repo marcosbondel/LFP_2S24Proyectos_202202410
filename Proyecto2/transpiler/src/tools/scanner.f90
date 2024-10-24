@@ -128,9 +128,9 @@ module LexicalAnalyzer
                     else if(self%str_collector == 'Colocacion') then
                         call self%build_token(i, j, 'Colocacion', 'COLOCACION')
                     else if(self%str_collector == 'setPosicion') then
-                        call self%build_token(i, j, 'setPosicion', 'COLOCACION_SET_POSICION')
+                        call self%build_token(i, j, 'setPosicion', 'PROPIEDAD_COLOCACION')
                     else if(self%str_collector == 'add') then
-                        call self%build_token(i, j, 'add', 'COLOCACION_ADD')
+                        call self%build_token(i, j, 'add', 'PROPIEDAD_COLOCACION')
                     else if(self%str_collector == 'this') then
                         call self%build_token(i, j, 'this', 'COLOCACION_THIS')
  

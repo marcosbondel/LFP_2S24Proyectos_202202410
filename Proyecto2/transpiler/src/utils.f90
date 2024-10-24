@@ -323,7 +323,7 @@ module Utils
             character(len=:), allocatable :: temp_records(:)
 
             ! Aseguramos que el nuevo arreglo tiene el mismo tamaño que el nuevo_record
-            allocate(character(len=50) :: temp_records(length + 1))
+            allocate(character(len=10000) :: temp_records(length + 1))
 
             ! Copiamos los registros existentes al arreglo temporal
             do i = 1, size(records)
@@ -339,7 +339,7 @@ module Utils
             end if
 
             ! Asignamos espacio para el nuevo arreglo de registros
-            allocate(character(len=50) :: records(length + 1))
+            allocate(character(len=10000) :: records(length + 1))
 
             ! Copiamos el arreglo temporal al definitivo
             records = temp_records
