@@ -24,13 +24,14 @@ module LexicalAnalyzer
 
             class(Scanner), intent(inout) :: self
 
-            integer :: i, j, ios, len_temp
+            integer :: i, j, j_track, ios, len_temp
             character(len=:), intent(inout), allocatable :: character_stream
             ! character(len=:), allocatable :: str_collector
             character(len=256) :: temp
 
             ! Init values
             j = 1
+            j_track = 1
             self%str_collector = ""
             self%current_state = 0
             self%no_tokens = 0
@@ -49,66 +50,65 @@ module LexicalAnalyzer
 
                 do while( i <= len(character_stream) )
                     ! We sanitize/clean the string from empty spaces and break lines
-                    self%str_collector = trim(self%str_collector) // clean_string(trim(character_stream(i:i)))
-
+                    self%str_collector = trim(self%str_collector) // sanitize_string(trim(character_stream(i:i)))
 
                     ! STATUS 0 - Controles block
-                    if(self%str_collector == '<') then
+                    if(self%str_collector == '<' .and. not_go_before_line_comment(character_stream(1:i))) then
                         call self%build_token(i, j, '<', 'MENOR_QUE')
-                    else if(self%str_collector == '!') then
+                    else if(self%str_collector == '!' .and. not_go_before_line_comment(character_stream(1:i))) then
                         call self%build_token(i, j, '!', 'EXCLAMACION')
-                    else if(self%str_collector == '-') then
+                    else if(self%str_collector == '-' .and. not_go_before_line_comment(character_stream(1:i))) then
                         call self%build_token(i, j, '-', 'GUION')
                     else if(self%str_collector == 'Controles') then
                         call self%build_token(i, j, 'Controles', 'BLOQUE_CONTROLES')
                     else if(self%str_collector == 'Boton') then
-                        call self%build_token(i, j, 'Boton', 'BOTON')
+                        call self%build_token(i, j, 'Boton', 'CTE_CONTROLES')
                     else if(self%str_collector == 'Etiqueta') then
-                        call self%build_token(i, j, 'Etiqueta', 'ETIQUETA')
+                        call self%build_token(i, j, 'Etiqueta', 'CTE_CONTROLES')
                     else if(self%str_collector == 'Check') then
-                        call self%build_token(i, j, 'Check', 'CHECK')
+                        call self%build_token(i, j, 'Check', 'CTE_CONTROLES')
                     else if(self%str_collector == 'RadioBoton') then
-                        call self%build_token(i, j, 'RadioBoton', 'RADIO_BOTON')
+                        call self%build_token(i, j, 'RadioBoton', 'CTE_CONTROLES')
                     else if(self%str_collector == 'Texto' .and. character_stream(i + 1:i + 1) == ' ') then
-                        call self%build_token(i, j, 'Texto', 'TEXTO')
+                        call self%build_token(i, j, 'Texto', 'CTE_CONTROLES')
                     else if(self%str_collector == 'AreaTexto') then
-                        call self%build_token(i, j, 'AreaTexto', 'AREA_TEXTO')
+                        call self%build_token(i, j, 'AreaTexto', 'CTE_CONTROLES')
                     else if(self%str_collector == 'Clave') then
-                        call self%build_token(i, j, 'Clave', 'CLAVE')
+                        call self%build_token(i, j, 'Clave', 'CTE_CONTROLES')
                     else if(self%str_collector == 'Contenedor') then
-                        call self%build_token(i, j, 'Contenedor', 'CONTENEDOR')
-                    else if(self%str_collector == '>') then
+                        call self%build_token(i, j, 'Contenedor', 'CTE_CONTROLES')
+                    else if(self%str_collector == '>' .and. not_go_before_line_comment(character_stream(1:i))) then
                         call self%build_token(i, j, '>', 'MAYOR_QUE')
-                    else if(self%str_collector == ';') then
+                    else if(self%str_collector == ';' .and. not_go_before_line_comment(character_stream(1:i))) then
                         call self%build_token(i, j, ';', 'PUNTO_Y_COMA')
                     
                     ! propiedades block
                     else if(self%str_collector == 'propiedades') then
                         call self%build_token(i, j, 'propiedades', 'BLOQUE_PROPIEDADES')
-                    else if(self%str_collector == '.') then
+                    else if(self%str_collector == '.' .and. not_go_before_line_comment(character_stream(1:i))) then
                         call self%build_token(i, j, '.', 'PUNTO')
-                    else if(self%str_collector == ',') then
+                    else if(self%str_collector == ',' .and. not_go_before_line_comment(character_stream(1:i))) then
                         call self%build_token(i, j, ',', 'COMA')
-                    else if(self%str_collector == '(') then
+                    else if(self%str_collector == '(' .and. not_go_before_line_comment(character_stream(1:i))) then
                         call self%build_token(i, j, '(', 'PARENTESIS_ABRE')
-                    else if(self%str_collector == ')') then
+                    else if(self%str_collector == ')' .and. not_go_before_line_comment(character_stream(1:i))) then
                         call self%build_token(i, j, ')', 'PARENTESIS_CIERRE')
                     else if(self%str_collector == 'setColorLetra') then
-                        call self%build_token(i, j, 'setColorLetra', 'PROPIEDAD')
+                        call self%build_token(i, j, 'setColorLetra', 'PROPIEDAD_PROPIEDADES')
                     else if(self%str_collector == 'setTexto') then
-                        call self%build_token(i, j, 'setTexto', 'PROPIEDAD')
+                        call self%build_token(i, j, 'setTexto', 'PROPIEDAD_PROPIEDADES')
                     else if(self%str_collector == 'setAlineacion') then
-                        call self%build_token(i, j, 'setAlineacion', 'PROPIEDAD')
+                        call self%build_token(i, j, 'setAlineacion', 'PROPIEDAD_PROPIEDADES')
                     else if(self%str_collector == 'setColorFondo') then
-                        call self%build_token(i, j, 'setColorFondo', 'PROPIEDAD')
+                        call self%build_token(i, j, 'setColorFondo', 'PROPIEDAD_PROPIEDADES')
                     else if(self%str_collector == 'setMarcada') then
-                        call self%build_token(i, j, 'setMarcada', 'PROPIEDAD')
+                        call self%build_token(i, j, 'setMarcada', 'PROPIEDAD_PROPIEDADES')
                     else if(self%str_collector == 'setGrupo') then
-                        call self%build_token(i, j, 'setGrupo', 'PROPIEDAD')
+                        call self%build_token(i, j, 'setGrupo', 'PROPIEDAD_PROPIEDADES')
                     else if(self%str_collector == 'setAncho') then
-                        call self%build_token(i, j, 'setAncho', 'PROPIEDAD')
+                        call self%build_token(i, j, 'setAncho', 'PROPIEDAD_PROPIEDADES')
                     else if(self%str_collector == 'setAlto') then
-                        call self%build_token(i, j, 'setAlto', 'PROPIEDAD')
+                        call self%build_token(i, j, 'setAlto', 'PROPIEDAD_PROPIEDADES')
                     else if(self%str_collector == 'true') then
                         call self%build_token(i, j, 'true', 'VALOR_PROPIEDAD')
                     else if(self%str_collector == 'false') then
@@ -120,8 +120,8 @@ module LexicalAnalyzer
                     else if(self%str_collector == 'derecho') then
                         call self%build_token(i, j, 'derecho', 'VALOR_PROPIEDAD')
                     
-                    else if(self%str_collector == '"') then
-                        call self%build_token(i, j, '"', 'COMILLAS_DOBLES')
+                    ! else if(self%str_collector == '"') then
+                    !     call self%build_token(i, j, '"', 'COMILLAS_DOBLES')
                     
 
                     ! Colocacion block
@@ -136,31 +136,57 @@ module LexicalAnalyzer
  
 
                     ! Support for comments ????
-                    else if(self%str_collector == '/') then
+                    else if(self%str_collector == '/' .and. not_go_before_line_comment(character_stream(1:i))) then
                         call self%build_token(i, j, '/', 'BARRA_DIAGONAL')
-                    else if(self%str_collector == '\') then
+                    else if(self%str_collector == '\' .and. not_go_before_line_comment(character_stream(1:i))) then
                         call self%build_token(i, j, '\', 'BARRA_INVERSA')
-                    else if(self%str_collector == '*') then
+                    else if(self%str_collector == '*' .and. not_go_before_line_comment(character_stream(1:i))) then
                         call self%build_token(i, j, '*', 'ASTERISCO')
-                    else if(self%str_collector == '#') then
+                    else if(self%str_collector == '#' .and. not_go_before_line_comment(character_stream(1:i))) then
                         call self%build_token(i, j, '#', 'NUMERAL')
-                    else if(self%str_collector == '$') then
+                    else if(self%str_collector == '$' .and. not_go_before_line_comment(character_stream(1:i))) then
                         call self%build_token(i, j, '$', 'DOLAR')
 
+                    else if(character_stream(i: i) == '*' .and. character_stream(i+1:i+1) == '/' .and. is_alpha(self%str_collector(1:1))) then
+                        call self%build_token(1, j, self%str_collector(1:len(self%str_collector) - 2), 'COMMENT', .false.)
+                        call self%build_token(i, j, '*', 'ASTERISCO', .false.)
+                        call self%build_token(i+1, j, '/', 'BARRA_DIAGONAL', .false.)
+                        self%str_collector = "" ! We clean the buffer
+                        i = i + 2
+                    else if(character_stream(i - 1: i - 1) == '/' .and. character_stream(i - 2: i - 2) == '/') then
+                        call self%build_token(i, j, character_stream(i:len(character_stream)), 'COMMENT')
+                        i = len(character_stream)
                     ! We check if the buffer contains an identifier
                     else if(is_delimiter(character_stream(i:i)) .and. is_alpha(self%str_collector(1:1))) then
-                        call self%build_token(i, j, self%str_collector(1:len(self%str_collector) - 1), 'IDENTIFICADOR', .false.)
-                        call self%build_token(i, j, character_stream(i:i), get_delimiter_name(character_stream(i:i)), .false.)
-                        self%str_collector = "" ! We clean the buffer
+
+                        ! if( (j - 1) == j_track .and. is_slash(self%str_collector(1:1))) then
+                            call self%build_token(i, j, self%str_collector(1:len(self%str_collector) - 1), 'IDENTIFICADOR', .false.)
+                            call self%build_token(i, j, character_stream(i:i), get_delimiter_name(character_stream(i:i)), .false.)
+                            self%str_collector = "" ! We clean the buffer
+                        ! else
+                            ! call self%build_token(i, j, self%str_collector(1:len(self%str_collector) - 1), 'IDENTIFICADOR', .false.)
+                            ! call self%build_token(i, j, character_stream(i:i), get_delimiter_name(character_stream(i:i)), .false.)
+                            ! self%str_collector = "" ! We clean the buffer
+                        ! end if
+
                     ! We check if the buffer contains a number
                     else if(is_delimiter(character_stream(i:i)) .and. is_number(self%str_collector(1:len(self%str_collector) - 1))) then
                         call self%build_token(i, j, self%str_collector(1:len(self%str_collector) - 1), 'NUMERO', .false.)
                         call self%build_token(i, j, character_stream(i:i), get_delimiter_name(character_stream(i:i)), .false.)
                         self%str_collector = "" ! We clean the buffer
-                    else
+                    else if(character_stream(i:i) == achar(10)) then
+                        print *, "BREAK LINE"
                         ! We save errors
                         ! print *, "ERROR: ", character_stream(i:i), self%str_collector
                     end if
+
+                
+                    ! TODO: analyze strings separately
+                    if(len(self%str_collector) > 1 .and. self%str_collector(1:1) == '"' .and. self%str_collector(len(self%str_collector):len(self%str_collector)) == '"') then
+                        call self%build_token(i, j, self%str_collector, 'CADENA')
+                        ! i = len(character_stream)
+                    end if
+
 
                     i = i + 1
                 end do

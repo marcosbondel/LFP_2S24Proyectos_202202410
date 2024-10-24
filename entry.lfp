@@ -5,7 +5,8 @@ Controles -->
 /*
 Definicion de propiedades
 */
-//#$inicio de contlogin contlogin.setAncho(190);contlogin.setAlto(150);
+//#$inicio de contlogin 
+contlogin.setAncho(190);contlogin.setAlto(150);
 contlogin.setColorFondo(47,79,79);
 //#$fin de contlogin
 //#$inicio de contFondo contFondo.setAncho(800);

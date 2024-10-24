@@ -177,8 +177,19 @@ text_area = Text(root, width=140, height=30)
 text_area.place(x=20, y=30)
 text_area.insert(END, '''
 <!--Controles
-Contenedor contlogin; Contenedor contFondo; Boton cmdIngresar; Clave pswClave; Etiqueta passw; Etiqueta Nombre; Texto Texto0; Contenedor contlogo2; Contenedor ContLogo1; Contenedor ContBody;
+//#$comentario
+/*
+    COMENTRAIO DE VARIAS LINEAS
+*/
+Contenedor contlogin;
+Contenedor contFondo; 
+Boton cmdIngresar; 
+Clave pswClave; Etiqueta passw; Etiqueta Nombre; Texto Texto0; Contenedor contlogo2; Contenedor ContLogo1; Contenedor ContBody;
 Controles -->
+<!--propiedades
+//#$comentario
+contlogin.setAncho(190);contlogin.setAlto(150);
+propiedades -->
 ''')
 
 image_label = Label(root)

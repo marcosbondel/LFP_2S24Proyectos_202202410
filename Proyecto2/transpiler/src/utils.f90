@@ -119,32 +119,70 @@ module Utils
             end do
         end function to_lower_case
 
-        function clean_string(string) result(output_string)
+        ! function sanitize_string(string) result(output_string)
+        !     implicit none
+
+        !     character(len=*), intent(in) :: string
+        !     character(len=len(string)) :: output_string
+        !     character :: tabChar, newLineLF, newLineCR
+        !     integer :: i, pos
+
+        !     tabChar = char(9)        ! Tab character
+        !     newLineLF = achar(10)    ! Line Feed (LF) - Unix-like systems
+        !     newLineCR = achar(13)    ! Carriage Return (CR) - Windows systems
+        !     output_string = ''       ! Initialize the result string as empty
+        !     pos = 1                  ! Position in the result string
+
+        !     ! Loop through each character in the input string
+        !     do i = 1, len_trim(string)
+        !         if (string(i:i) /= tabChar .and. string(i:i) /= newLineLF .and. string(i:i) /= newLineCR) then
+        !             output_string(pos:pos) = string(i:i)  ! Copy non-tab and non-newline characters
+        !             pos = pos + 1                          ! Move to the next position
+        !         end if
+        !     end do
+
+        !     ! Trim the output string to remove any trailing spaces
+        !     output_string = trim(output_string)
+
+        ! end function sanitize_string
+        function sanitize_string(string) result(output_string)
             implicit none
 
             character(len=*), intent(in) :: string
             character(len=len(string)) :: output_string
-            character :: tabChar, newLineLF, newLineCR
+            character :: tabChar
             integer :: i, pos
 
             tabChar = char(9)        ! Tab character
-            newLineLF = achar(10)    ! Line Feed (LF) - Unix-like systems
-            newLineCR = achar(13)    ! Carriage Return (CR) - Windows systems
             output_string = ''       ! Initialize the result string as empty
             pos = 1                  ! Position in the result string
 
             ! Loop through each character in the input string
             do i = 1, len_trim(string)
-                if (string(i:i) /= tabChar .and. string(i:i) /= newLineLF .and. string(i:i) /= newLineCR) then
-                    output_string(pos:pos) = string(i:i)  ! Copy non-tab and non-newline characters
-                    pos = pos + 1                          ! Move to the next position
+                if (string(i:i) /= tabChar) then
+                    output_string(pos:pos) = string(i:i)  ! Copy non-tab characters
+                    pos = pos + 1                         ! Move to the next position
                 end if
             end do
 
             ! Trim the output string to remove any trailing spaces
             output_string = trim(output_string)
 
-        end function clean_string
+        end function sanitize_string
+
+        function not_go_before_line_comment(str) result(yes)
+            implicit none
+            
+            character(len=*), intent(in) :: str
+            logical :: yes
+
+            yes = .true.
+
+            if(str(len(str) - 1: len(str) - 1) == '/' .and. str(len(str) - 2: len(str) - 2) == '/') then
+                yes = .false.
+            end if
+
+        end function not_go_before_line_comment
 
         logical function is_alpha(c)
             implicit none
@@ -193,6 +231,20 @@ module Utils
 
         end function is_delimiter
 
+        function is_slash(string) result(it_is)
+            implicit none
+
+            character(len=*), intent(in) :: string
+            logical :: it_is
+
+            it_is = .false.
+
+            if(string == '/') then
+                it_is = .true.
+            end if
+
+        end function is_slash
+
 
         function get_delimiter_name(c) result(delimiter_name)
             implicit none
@@ -227,39 +279,118 @@ module Utils
         end function get_delimiter_name
 
         ! This Subroutine is thought to implement dynamic memory management
+        ! subroutine add_record(length, new_record, records)
+        !     implicit none
+
+        !     integer :: i
+        !     integer, intent(in) :: length
+        !     character(len=*), intent(in) :: new_record
+        !     ! type(Token), intent(in) :: new_record
+
+        !     ! type(Token), intent(inout), allocatable :: records(:)
+        !     ! character(len=:), intent(inout), allocatable :: records(:)
+        !     character(len=:), allocatable, intent(inout) :: records(:)
+        !     character(len=:), allocatable :: temp_records(:)
+        !     ! type(Token), allocatable :: temp_records(:)
+
+
+        !     ! The temprary array will always be greater than the actual array
+        !     allocate(temp_records(length + 1), source=records)
+
+        !     do i = 1, size(records) 
+        !         temp_records(i) = records(i)
+        !     end do
+
+        !     ! We add the new record
+        !     temp_records(length + 1) = new_record
+
+        !     if(allocated(records)) then
+        !         deallocate(records)
+        !     end if
+
+        !     allocate(records(length + 1), source=records)
+
+        !     records = temp_records
+        ! end subroutine add_record
         subroutine add_record(length, new_record, records)
             implicit none
 
             integer :: i
             integer, intent(in) :: length
             character(len=*), intent(in) :: new_record
-            ! type(Token), intent(in) :: new_record
 
-            ! type(Token), intent(inout), allocatable :: records(:)
-            ! character(len=:), intent(inout), allocatable :: records(:)
             character(len=:), allocatable, intent(inout) :: records(:)
             character(len=:), allocatable :: temp_records(:)
-            ! type(Token), allocatable :: temp_records(:)
 
+            ! Aseguramos que el nuevo arreglo tiene el mismo tamaño que el nuevo_record
+            allocate(character(len=50) :: temp_records(length + 1))
 
-            ! The temprary array will always be greater than the actual array
-            allocate(temp_records(length + 1), source=records)
-
-            do i = 1, size(records) 
+            ! Copiamos los registros existentes al arreglo temporal
+            do i = 1, size(records)
                 temp_records(i) = records(i)
             end do
 
-            ! We add the new record
+            ! Añadimos el nuevo registro
             temp_records(length + 1) = new_record
 
-            if(allocated(records)) then
+            ! Liberamos el arreglo original si está asignado
+            if (allocated(records)) then
                 deallocate(records)
             end if
 
-            allocate(records(length + 1), source=records)
+            ! Asignamos espacio para el nuevo arreglo de registros
+            allocate(character(len=50) :: records(length + 1))
 
+            ! Copiamos el arreglo temporal al definitivo
             records = temp_records
+
+            ! Liberamos el arreglo temporal
+            deallocate(temp_records)
         end subroutine add_record
+
+        subroutine remove_record(index, length, records)
+            implicit none
+
+            integer :: i, index
+            integer, intent(in) :: length
+            character(len=:), allocatable, intent(inout) :: records(:)
+            character(len=:), allocatable :: temp_records(:)
+
+            ! Verificamos si el índice está en el rango correcto
+            if (index < 1 .or. index > length) then
+                print *, "Error: El índice está fuera de rango."
+                return
+            end if
+
+            ! Aseguramos que el nuevo arreglo tiene un tamaño menor al actual
+            allocate(character(len=50) :: temp_records(length - 1))
+
+            ! Copiamos todos los registros excepto el que se eliminará
+            do i = 1, index - 1
+                temp_records(i) = records(i)
+            end do
+
+            do i = index + 1, length
+                temp_records(i - 1) = records(i)
+            end do
+
+            ! Liberamos el arreglo original si está asignado
+            if (allocated(records)) then
+                deallocate(records)
+            end if
+
+            ! Asignamos espacio para el nuevo arreglo de registros
+            allocate(character(len=50) :: records(length - 1))
+
+            ! Copiamos el arreglo temporal al definitivo
+            records = temp_records
+
+            ! Liberamos el arreglo temporal
+            deallocate(temp_records)
+
+        end subroutine remove_record
+
+
 
         ! Function to reverse a string
         function reverse_string(str) result(reversed)
