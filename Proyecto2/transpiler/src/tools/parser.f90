@@ -29,7 +29,7 @@ module SyntaxAnalyzer
             procedure :: check_context
             procedure :: build_controls
             procedure :: build_intermediate_code
-            procedure :: create_files
+            procedure :: create_html_file
             procedure :: track_param
             procedure :: clean_param_trackers
     end type
@@ -45,8 +45,8 @@ module SyntaxAnalyzer
             ! Init value
             allocate(self%controls(0))
             self%context = ''
-            ! self%s = '<!--Controles COMMENT CDeclaration COMMENT Controles--><!--propiedades COMMENT CProperties COMMENT propiedades--><!--Colocacion COMMENT CLocate COMMENT Colocacion -->'
-            self%s = '<!--Controles COMMENT CDeclaration COMMENT Controles--><!--propiedades COMMENT CProperties COMMENT propiedades-->'
+            self%s = '<!--Controles COMMENT CDeclaration COMMENT Controles--><!--propiedades COMMENT CProperties COMMENT propiedades--><!--Colocacion COMMENT CLocate COMMENT Colocacion -->'
+            ! self%s = '<!--Controles COMMENT CDeclaration COMMENT Controles--><!--propiedades COMMENT CProperties COMMENT propiedades-->'
             self%tokens = tokens
             self%context = ""
             self%cte_controles = ""
@@ -70,7 +70,8 @@ module SyntaxAnalyzer
             end do
 
             call build_intermediate_code(self)
-            call create_files(self, 'test')
+            call create_html_file(self, 'index')
+            call create_css_file(self)
 
         end subroutine analyze
 
@@ -248,20 +249,36 @@ module SyntaxAnalyzer
                     call remove_record(size(self%pile), size(self%pile), self%pile)
                 end if
             else if(symbol == 'NUMERO') then
-                if(token == "NUMERO") then
-                    call add_record(size(self%pile), "COMA", self%pile)
-                    call add_record(size(self%pile), "NUMERO", self%pile)
+                if(token == 'NUMERO') then
+                    call add_record(size(self%pile), 'COMA', self%pile)
+                    call add_record(size(self%pile), 'NUMERO', self%pile)
                 else
                     call remove_record(size(self%pile), size(self%pile), self%pile) ! We remove 'NUMERO'
                     call remove_record(size(self%pile), size(self%pile), self%pile) ! We remove 'NUMERO'
                 end if
             else if(symbol == 'CLocate') then
-                if(token == "NUMERO") then
-                    call add_record(size(self%pile), "COMA", self%pile)
-                    call add_record(size(self%pile), "NUMERO", self%pile)
+                if(token == 'IDENTIFICADOR') then                    
+                    call add_record(size(self%pile), 'PUNTO_Y_COMA', self%pile)
+                    call add_record(size(self%pile), 'PARENTESIS_CIERRE', self%pile)
+                    call add_record(size(self%pile), 'PARAM', self%pile)
+                    call add_record(size(self%pile), 'PARENTESIS_ABRE', self%pile)
+                    call add_record(size(self%pile), 'PROPIEDAD_PROPIEDADES', self%pile)
+                    call add_record(size(self%pile), 'PUNTO', self%pile)
+                    call add_record(size(self%pile), 'IDENTIFICADOR', self%pile)
+                else if(token == 'THIS') then
+                    call add_record(size(self%pile), 'PUNTO_Y_COMA', self%pile)
+                    call add_record(size(self%pile), 'PARENTESIS_CIERRE', self%pile)
+                    call add_record(size(self%pile), 'PARAM', self%pile)
+                    call add_record(size(self%pile), 'PARENTESIS_ABRE', self%pile)
+                    call add_record(size(self%pile), 'PROPIEDAD_PROPIEDADES', self%pile)
+                    call add_record(size(self%pile), 'PUNTO', self%pile)
+                    call add_record(size(self%pile), 'THIS', self%pile)
                 else
-                    call remove_record(size(self%pile), size(self%pile), self%pile) ! We remove 'NUMERO'
-                    call remove_record(size(self%pile), size(self%pile), self%pile) ! We remove 'NUMERO'
+                    call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
+
+                    if(token == 'BLOQUE_COLOCACION') then
+                        call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
+                    end if
                 end if
             end if
 
@@ -307,11 +324,8 @@ module SyntaxAnalyzer
                 call remove_record(size(self%pile), size(self%pile), self%pile)
             else if(symbol == 'VALOR_PROPIEDAD' .and. token == 'VALOR_PROPIEDAD') then
                 call remove_record(size(self%pile), size(self%pile), self%pile)
-            ! else if(symbol == 'PROPIEDAD_PROPIEDADES' .and. token == 'PROPIEDAD_PROPIEDADES') then
-            !     self%style_property = lexeme
-            !     call remove_record(size(self%pile), size(self%pile), self%pile)
             else if(symbol == token .or. symbol == lexeme) then
-                if(symbol == 'PROPIEDAD_PROPIEDADES') then
+                if(symbol == 'PROPIEDAD_PROPIEDADES' .or. symbol == 'PROPIEDAD_COLOCACION') then
                     self%style_property = lexeme
                 else if(symbol == 'NUMERO') then
                     call self%track_param(lexeme)
@@ -377,10 +391,9 @@ module SyntaxAnalyzer
 
             if(self%context == 'Controles') then
                 call build_control(self%controls, self%control_id, self%cte_controles)
-            else if(self%context == 'propiedades') then
+            else if(self%context == 'propiedades' .or. self%context == 'Colocacion') then
+                ! print *, 'colocacion'
                 call add_properties(self%controls, trim(self%control_id), trim(self%cte_controles), trim(self%style_property), trim(self%param1), trim(self%param2), trim(self%param3))
-            else if(self%context == 'Colocacion') then
-            
             end if
 
             call self%clean_param_trackers()
@@ -402,35 +415,35 @@ module SyntaxAnalyzer
                 ! print *, self%controls(i)%width
 
                 if(self%controls(i)%cte_control == 'Etiqueta') then
-                    tag = '<label id="ID">' // self%controls(i)%text // '</label>'
+                    tag = '<label id="' // trim(self%controls(i)%control_id) // '">' // trim(self%controls(i)%text) // '</label>'
                     call add_record(size(self%html), trim(tag), self%html)
                 else if(self%controls(i)%cte_control == 'Boton') then
-                    tag = '<input type="submit" id="ID" value="Texto" style="text-align: Alineacion"/>'
+                    tag = '<input type="submit" id="' // trim(self%controls(i)%control_id) // '" value='  // trim(self%controls(i)%text) // ' style="text-align: '// trim(self%controls(i)%alignment) //'"/>'
                     call add_record(size(self%html), trim(tag), self%html)
                 else if(self%controls(i)%cte_control == 'Check') then
-                    tag = '<input type="checkbox" id="JCheckBox0" Marcado(checked) />JCheckBox0'
+                    tag = '<input type="checkbox" id="'// trim(self%controls(i)%control_id) //'" Marcado(checked) />JCheckBox0'
                     call add_record(size(self%html), trim(tag), self%html)
                 else if(self%controls(i)%cte_control == 'RadioBoton') then
-                    tag = '<input type="radio" name="Group" id="ID"Marcado />Texto'
+                    tag = '<input type="radio" name="'// trim(self%controls(i)%group) //'" id="'// trim(self%controls(i)%control_id) //'" Marcado />Texto'
                     call add_record(size(self%html), trim(tag), self%html)
                 else if(self%controls(i)%cte_control == 'Texto') then
-                    tag = '<input type = "text" id="ID" value="Texto" style="text-align: Alineacion" />'
+                    tag = '<input type = "text" id="'// trim(self%controls(i)%control_id) //'" value="Texto" style="text-align: '// trim(self%controls(i)%alignment) //'" />'
                     call add_record(size(self%html), trim(tag), self%html)
                 else if(self%controls(i)%cte_control == 'AreaTexto') then
-                    tag = '<textarea id="ID">Texto</textarea>'
+                    tag = '<textarea id="'// trim(self%controls(i)%control_id) //'">Texto</textarea>'
                     call add_record(size(self%html), trim(tag), self%html)
                 else if(self%controls(i)%cte_control == 'Clave') then
-                    tag = '<input type = "password" id="ID" value="Texto" style="text-align: Alineacion"/>'
+                    tag = '<input type = "password" id="'// trim(self%controls(i)%control_id) //'" value="Texto" style="text-align: '// trim(self%controls(i)%alignment) //'"/>'
                     call add_record(size(self%html), trim(tag), self%html)
                 else if(self%controls(i)%cte_control == 'Contenedor') then
-                    tag = '<div id="ID"> </div>'
+                    tag = '<div id="'// trim(self%controls(i)%control_id) //'"> </div>'
                     call add_record(size(self%html), trim(tag), self%html)
                 end if
             end do
 
         end subroutine build_intermediate_code
 
-        subroutine create_files(self, file_name)
+        subroutine create_html_file(self, file_name)
             implicit none
             
             class(Parser), intent(inout) :: self
@@ -454,7 +467,8 @@ module SyntaxAnalyzer
             write(10,*) '<head>'
             write(10,*) '    <meta charset="UTF-8">'
             write(10,*) '    <meta name="viewport" content="width=device-width, initial-scale=1.0">'
-            write(10,*) '    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">'
+            ! write(10,*) '    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">'
+            write(10,*) '    <link rel="stylesheet" href="./styles.css">'
             write(10,*) '    <title>Transpilador LFP</title>'
             write(10,*) '</head>'
 
@@ -469,6 +483,44 @@ module SyntaxAnalyzer
             ! Close the file
             close(10)
 
-        end subroutine create_files
+        end subroutine create_html_file
+
+        subroutine create_css_file(self)
+            implicit none
+
+            class(Parser), intent(inout) :: self
+
+            integer :: unit_number, iostat, i
+            character(len=100) :: file_name
+
+            ! Define the CSS file name
+            file_name = "styles.css"
+
+            ! Assign a unit number and open the file for writing
+            open(newunit=unit_number, file=file_name, status="replace", action="write", iostat=iostat)
+
+            ! Check if there was an error opening the file
+            if (iostat /= 0) then
+                print *, "Error creating the CSS file."
+                return
+            end if
+
+            ! Write some CSS styles to the file
+            
+            do i = 1, size(self%controls), 1
+                write(unit_number, '(A)') '#' // trim(self%controls(i)%control_id) // '{ ' // achar(10) // &
+                    'left: '// trim(self%controls(i)%xy_position(1)) //' px;' // achar(10) // & 
+                    'top: '// trim(self%controls(i)%xy_position(2)) //' px;' // achar(10) // & 
+                    'width: '// trim(self%controls(i)%width) //' px;' // achar(10) // & 
+                    'height: '// trim(self%controls(i)%height) //' px;' // achar(10) // & 
+                    'background-color: rgb('// trim(self%controls(i)%background_color(1)) // ',' // trim(self%controls(i)%background_color(2)) // ',' // trim(self%controls(i)%background_color(3)) //');' // achar(10) // &
+                    'color: rgb('// trim(self%controls(i)%font_color(1)) // ',' // trim(self%controls(i)%font_color(2)) // ',' // trim(self%controls(i)%font_color(3)) //');' // achar(10) // &
+                '}' // achar(10)
+            end do
+
+            ! Close the file
+            close(unit_number)
+
+        end subroutine create_css_file
 
 end module SyntaxAnalyzer

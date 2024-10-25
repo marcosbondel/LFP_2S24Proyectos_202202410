@@ -86,7 +86,6 @@ module LexicalAnalyzer
                     else if(self%str_collector == 'propiedades') then
                         call self%build_token(i, j, 'propiedades', 'BLOQUE_PROPIEDADES')
                     else if(self%str_collector == '.' .and. not_go_before_line_comment(character_stream(1:i))) then
-                        print *, "NOT HERE"
                         call self%build_token(i, j, '.', 'PUNTO')
                     else if(self%str_collector == ',' .and. not_go_before_line_comment(character_stream(1:i))) then
                         call self%build_token(i, j, ',', 'COMA')
@@ -129,11 +128,13 @@ module LexicalAnalyzer
                     else if(self%str_collector == 'Colocacion') then
                         call self%build_token(i, j, 'Colocacion', 'BLOQUE_COLOCACION')
                     else if(self%str_collector == 'setPosicion') then
-                        call self%build_token(i, j, 'setPosicion', 'PROPIEDAD_COLOCACION')
+                        ! call self%build_token(i, j, 'setPosicion', 'PROPIEDAD_COLOCACION')
+                        call self%build_token(i, j, 'setPosicion', 'PROPIEDAD_PROPIEDADES')
                     else if(self%str_collector == 'add') then
                         call self%build_token(i, j, 'add', 'PROPIEDAD_COLOCACION')
+                        call self%build_token(i, j, 'add', 'PROPIEDAD_PROPIEDADES')
                     else if(self%str_collector == 'this') then
-                        call self%build_token(i, j, 'this', 'COLOCACION_THIS')
+                        call self%build_token(i, j, 'this', 'THIS')
  
 
                     ! Support for comments ????
@@ -175,8 +176,30 @@ module LexicalAnalyzer
                         call self%build_token(i, j, self%str_collector(1:len(self%str_collector) - 1), 'NUMERO', .false.)
                         call self%build_token(i, j, character_stream(i:i), get_delimiter_name(character_stream(i:i)), .false.)
                         self%str_collector = "" ! We clean the buffer
-                    else if(character_stream(i:i) == achar(10)) then
-                        print *, "BREAK LINE"
+                    else
+                        
+                        if(character_stream(i:i) /= ' ' .and. character_stream(i:i) /= '\t' .and. &
+                            character_stream(i:i) /= '\r' .and. character_stream(i:i) /= '\f' .and. character_stream(i:i) /= char(9) .and. &
+                            character_stream(i:i) /= '\0' .and. .not. ((character_stream(i:i) >= 'a' .and. character_stream(i:i) <= 'z') .or. &
+                            (character_stream(i:i) >= 'A' .and. character_stream(i:i) <= 'Z')) .and. &
+                            .not. is_numeric_value(character_stream(i:i)) .and. &
+                            character_stream(i:i) /= '"' .and. &
+                            .not. (self%str_collector(1:1) == '"' .or. self%str_collector(len(self%str_collector):len(self%str_collector)) == '"')) then
+                        
+                            ! errors_count = errors_count + 1
+
+                            ! new_error%no = errors_count
+                            ! new_error%err = current_character
+                            ! new_error%description = "Elemento Lexico desconocido"
+                            ! new_error%row = row
+                            ! new_error%column = column
+
+                            ! call add_error(size(errors), new_error, errors)
+
+                            ! str_collector = ""
+                            print *, "ERROR: ", self%str_collector
+                            self%str_collector = ''
+                        end if
                         ! We save errors
                         ! print *, "ERROR: ", character_stream(i:i), self%str_collector
                     end if
@@ -185,7 +208,6 @@ module LexicalAnalyzer
                     ! TODO: analyze strings separately
                     if(len(self%str_collector) > 1 .and. self%str_collector(1:1) == '"' .and. self%str_collector(len(self%str_collector):len(self%str_collector)) == '"') then
                         call self%build_token(i, j, self%str_collector, 'CADENA')
-                        ! i = len(character_stream)
                     end if
 
 

@@ -14,6 +14,7 @@ module ControlModule
         character(len=100) :: group
         character(len=100) :: height
         character(len=100) :: width
+        character(len=100) :: xy_position(2)
 
         ! contains
         !     procedure :: build_control
@@ -36,18 +37,20 @@ module ControlModule
             new_control%cte_control = trim(cte_control)
 
             new_control%belongs_to_id = ''
-            new_control%font_color(1) = ''
-            new_control%font_color(2) = ''
-            new_control%font_color(3) = ''
+            new_control%font_color(1) = '0'
+            new_control%font_color(2) = '0'
+            new_control%font_color(3) = '0'
             new_control%text = ''
-            new_control%alignment = ''
-            new_control%background_color(1) = ''
-            new_control%background_color(2) = ''
-            new_control%background_color(3) = ''
+            new_control%alignment = 'left'
+            new_control%background_color(1) = '255'
+            new_control%background_color(2) = '255'
+            new_control%background_color(3) = '255'
             new_control%control_marked = ''
             new_control%group = ''
             new_control%height = ''
             new_control%width = ''
+            new_control%xy_position(1) = '0'
+            new_control%xy_position(2) = '0'
 
             call add_control(size(controls), new_control, controls)
 
@@ -93,13 +96,13 @@ module ControlModule
             do i = 1, size(controls), 1
                 
                 if(trim(adjustl(controls(i)%control_id)) == trim(adjustl(control_id))) then
-                    print *, control_id, ' - ', style_property, param1, param2, param3
+                    ! print *, control_id, ' - ', style_property, param1, param2, param3
                     if(style_property == 'setColorLetra') then
                         controls(i)%font_color(1) = trim(param1)
                         controls(i)%font_color(2) = trim(param2)
                         controls(i)%font_color(3) = trim(param3)
                     else if(style_property == 'setTexto') then
-                        controls(i)%text = trim(param1)
+                        controls(i)%text = trim(param1(2:len(param1)-2))
                     else if(style_property == 'setAlineacion') then
                         controls(i)%alignment = trim(param1)
                     else if(style_property == 'setColorFondo') then
@@ -114,6 +117,9 @@ module ControlModule
                         controls(i)%width = trim(param1)
                     else if(style_property == 'setAlto') then
                         controls(i)%height = trim(param1)
+                    else if(style_property == 'setPosicion') then
+                        controls(i)%xy_position(1) = trim(param1)
+                        controls(i)%xy_position(2) = trim(param2)
                     end if
 
                 end if

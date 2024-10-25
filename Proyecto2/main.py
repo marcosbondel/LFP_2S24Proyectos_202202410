@@ -190,6 +190,7 @@ Contenedor ContLogo1;
 Contenedor ContBody;
 Controles -->
 <!--propiedades
+// Este bloque tambien puede recibir comentarios
 contlogin.setAncho(190);
 contlogin.setAlto(150);
 contlogin.setColorFondo(47,79,79);
@@ -216,6 +217,26 @@ ContBody.setAncho(800);
 ContBody.setAlto(300);
 ContBody.setColorFondo(64,224,208);
 propiedades -->
+<!--Colocacion
+contFondo.setPosicion(25,330);
+this.add(contFondo);
+contlogin.setPosicion(586,110);
+ContBody.add(contlogin);
+passw.setPosicion(11,54); 
+contlogin.add(passw);
+cmdIngresar.setPosicion(40,100);
+contlogin.add(cmdIngresar);
+pswClave.setPosicion(67,48);
+contlogin.add(pswClave);
+Nombre.setPosicion(8,21);
+contlogin.add(Nombre);
+contlogo2.setPosicion(88,25);
+ContBody.add(contlogo2);
+ContLogo1.setPosicion(36,25);
+ContBody.add(ContLogo1);
+ContBody.setPosicion(23,21);
+this.add(ContBody);
+Colocacion -->
 ''')
 
 image_label = Label(root)
