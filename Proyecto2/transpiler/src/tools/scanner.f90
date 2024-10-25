@@ -6,7 +6,7 @@ module LexicalAnalyzer
 
     type :: Scanner
         integer :: current_state
-        integer :: no_tokens ! number of tokens
+        integer :: no_tokens, no_errors ! number of tokens
         type(Token), allocatable :: tokens(:)
         type(Error), allocatable :: errors(:)
         character(len=:), allocatable :: str_collector
@@ -15,6 +15,8 @@ module LexicalAnalyzer
             procedure :: analyze
             procedure :: build_token
             procedure :: add_token
+            procedure :: build_error
+            procedure :: add_error
     end type
 
     contains
@@ -35,7 +37,9 @@ module LexicalAnalyzer
             self%str_collector = ""
             self%current_state = 0
             self%no_tokens = 0
+            self%no_errors = 0
             allocate(self%tokens(0))
+            allocate(self%errors(0))
 
             ! We handle the input stream
             do
@@ -186,18 +190,8 @@ module LexicalAnalyzer
                             character_stream(i:i) /= '"' .and. &
                             .not. (self%str_collector(1:1) == '"' .or. self%str_collector(len(self%str_collector):len(self%str_collector)) == '"')) then
                         
-                            ! errors_count = errors_count + 1
-
-                            ! new_error%no = errors_count
-                            ! new_error%err = current_character
-                            ! new_error%description = "Elemento Lexico desconocido"
-                            ! new_error%row = row
-                            ! new_error%column = column
-
-                            ! call add_error(size(errors), new_error, errors)
-
-                            ! str_collector = ""
                             print *, "ERROR: ", self%str_collector
+                            call self%build_error(i, j, self%str_collector, .false.)
                             self%str_collector = ''
                         end if
                         ! We save errors
@@ -250,6 +244,32 @@ module LexicalAnalyzer
             end if
 
         end subroutine build_token
+        
+        subroutine build_error(self, i, j, str_collector, clean_str_collector)
+            implicit none
+
+            class(Scanner), intent(inout) :: self
+            character(len=*) :: str_collector
+            integer, intent(in) :: i, j
+            logical, intent(in), optional :: clean_str_collector
+
+            type(Error) :: new_error
+
+            new_error%no = self%no_errors
+            new_error%err = trim(str_collector)
+            new_error%description = "Elemento Lexico desconocido"
+            new_error%row = i
+            new_error%column = j
+
+            call self%add_error(self%no_errors, new_error)
+
+            self%no_errors = self%no_errors + 1
+
+            if( .not. present(clean_str_collector)) then
+                self%str_collector = "" ! We clean the buffer
+            end if
+
+        end subroutine build_error
 
         subroutine add_token(self, length, new_record)
             implicit none
@@ -280,5 +300,35 @@ module LexicalAnalyzer
 
             self%tokens = temp_records
         end subroutine add_token
+
+        subroutine add_error(self, length, new_record)
+            implicit none
+
+            class(Scanner), intent(inout) :: self
+
+            integer :: i
+            integer, intent(in) :: length
+            type(Error), intent(in) :: new_record
+
+            type(Error), allocatable :: temp_records(:)
+
+            ! The temprary array will always be greater than the actual array
+            allocate(temp_records(length + 1))
+
+            do i = 1, size(self%errors)
+                temp_records(i) = self%errors(i)
+            end do
+
+            ! We add the new record
+            temp_records(length + 1) = new_record
+
+            if(allocated(self%errors)) then
+                deallocate(self%errors)
+            end if
+
+            allocate(self%errors(length + 1))
+
+            self%errors = temp_records
+        end subroutine add_error
 
 end module LexicalAnalyzer

@@ -16,3 +16,75 @@ background-color: rgb(64,64,64);
 color: rgb(0,0,0);
 }
 
+#cmdIngresar{ 
+left: 40 px;
+top: 100 px;
+width:  px;
+height:  px;
+background-color: rgb(255,255,255);
+color: rgb(0,0,0);
+}
+
+#pswClave{ 
+left: 67 px;
+top: 48 px;
+width:  px;
+height:  px;
+background-color: rgb(255,255,255);
+color: rgb(0,0,0);
+}
+
+#passw{ 
+left: 11 px;
+top: 54 px;
+width: 53 px;
+height: 13 px;
+background-color: rgb(255,255,255);
+color: rgb(128,128,128);
+}
+
+#Nombre{ 
+left: 8 px;
+top: 21 px;
+width: 44 px;
+height: 13 px;
+background-color: rgb(255,255,255);
+color: rgb(128,128,128);
+}
+
+#Texto0{ 
+left: 0 px;
+top: 0 px;
+width:  px;
+height:  px;
+background-color: rgb(255,255,255);
+color: rgb(0,0,0);
+}
+
+#contlogo2{ 
+left: 88 px;
+top: 25 px;
+width: 150 px;
+height: 50 px;
+background-color: rgb(0,128,128);
+color: rgb(0,0,0);
+}
+
+#ContLogo1{ 
+left: 36 px;
+top: 25 px;
+width: 50 px;
+height: 50 px;
+background-color: rgb(64,64,64);
+color: rgb(0,0,0);
+}
+
+#ContBody{ 
+left: 23 px;
+top: 21 px;
+width: 800 px;
+height: 300 px;
+background-color: rgb(64,224,208);
+color: rgb(0,0,0);
+}
+
