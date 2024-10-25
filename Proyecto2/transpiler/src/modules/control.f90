@@ -93,6 +93,7 @@ module ControlModule
             do i = 1, size(controls), 1
                 
                 if(trim(adjustl(controls(i)%control_id)) == trim(adjustl(control_id))) then
+                    print *, control_id, ' - ', style_property, param1, param2, param3
                     if(style_property == 'setColorLetra') then
                         controls(i)%font_color(1) = trim(param1)
                         controls(i)%font_color(2) = trim(param2)
@@ -110,10 +111,8 @@ module ControlModule
                     else if(style_property == 'setGrupo') then
                         controls(i)%group = trim(param1)
                     else if(style_property == 'setAncho') then
-                        print *, param1
                         controls(i)%width = trim(param1)
                     else if(style_property == 'setAlto') then
-                        print *, param1
                         controls(i)%height = trim(param1)
                     end if
 

@@ -64,10 +64,10 @@ module SyntaxAnalyzer
             
             ! Once the pile is ready we start comparisons against the characters stream
             call self%analyze_controls()
-            ! print *, 'Final pile: '
-            ! do i = 1, size(self%pile), 1
-            !     print *, trim(self%pile(i))
-            ! end do
+            print *, 'Final pile: '
+            do i = 1, size(self%pile), 1
+                print *, trim(self%pile(i))
+            end do
 
             call build_intermediate_code(self)
             call create_files(self, 'test')
@@ -84,7 +84,6 @@ module SyntaxAnalyzer
 
             buffer1 = ""
             
-            ! '<!--Controles COMMENT CDeclaration COMMENT Controles--><!--propiedades COMMENT CProperties COMMENT propiedades-->'
             do i = len(self%s), 1, -1
                 buffer1 = trim(buffer1) // trim(self%s(i:i))
 
@@ -151,7 +150,7 @@ module SyntaxAnalyzer
                 ! if(trim(self%tokens(i)%lexeme) == trim(self%pile(size(self%pile))) .or. trim(self%tokens(i)%lex_type) == trim(self%pile(size(self%pile)))) then
                 if(trim(self%tokens(i)%lexeme) == trim(self%pile(size(self%pile)))) then
 
-
+                    ! print *, trim(self%tokens(i)%lexeme)
                     if(trim(self%pile(size(self%pile))) == 'PUNTO_Y_COMA') then
                         call build_controls(self)
                     end if
@@ -201,6 +200,16 @@ module SyntaxAnalyzer
                     call add_record(size(self%pile), "CTE_CONTROLES", self%pile)
                 else
                     call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
+
+                    if(token == 'IDENTIFICADOR') then
+                        call add_record(size(self%pile), "PUNTO_Y_COMA", self%pile)
+                        call add_record(size(self%pile), "PARENTESIS_CIERRE", self%pile)
+                        call add_record(size(self%pile), "PARAM", self%pile)
+                        call add_record(size(self%pile), "PARENTESIS_ABRE", self%pile)
+                        call add_record(size(self%pile), "PROPIEDAD_PROPIEDADES", self%pile)
+                        call add_record(size(self%pile), "PUNTO", self%pile)
+                        call add_record(size(self%pile), "IDENTIFICADOR", self%pile)
+                    end if
                 end if
             else if(symbol == 'CProperties') then
                 if(token == "IDENTIFICADOR") then                    
@@ -304,6 +313,8 @@ module SyntaxAnalyzer
             else if(symbol == token .or. symbol == lexeme) then
                 if(symbol == 'PROPIEDAD_PROPIEDADES') then
                     self%style_property = lexeme
+                else if(symbol == 'NUMERO') then
+                    call self%track_param(lexeme)
                 end if
                 call remove_record(size(self%pile), size(self%pile), self%pile)
             end if
@@ -318,11 +329,17 @@ module SyntaxAnalyzer
 
             if(self%param1 == '') then
                 self%param1 = param
-            else if(self%param2 == '') then
-                self%param2 = param
-            else if(self%param3 == '') then
-                self%param3 = param
+            else
+                if(self%param2 == '') then
+                    self%param2 = param
+                else
+                    if(self%param3 == '') then
+                        self%param3 = param
+                    end if
+                end if
             end if
+            
+            
 
         end subroutine track_param
 
@@ -385,7 +402,7 @@ module SyntaxAnalyzer
                 ! print *, self%controls(i)%width
 
                 if(self%controls(i)%cte_control == 'Etiqueta') then
-                    tag = '<label id="ID"> TEXT </label>'
+                    tag = '<label id="ID">' // self%controls(i)%text // '</label>'
                     call add_record(size(self%html), trim(tag), self%html)
                 else if(self%controls(i)%cte_control == 'Boton') then
                     tag = '<input type="submit" id="ID" value="Texto" style="text-align: Alineacion"/>'

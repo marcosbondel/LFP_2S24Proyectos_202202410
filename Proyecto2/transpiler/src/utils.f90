@@ -276,6 +276,8 @@ module Utils
                 delimiter_name = "MAYOR_QUE"
             else if( c == ".") then
                 delimiter_name = "PUNTO"
+            else if( c == ",") then
+                delimiter_name = "COMA"
             end if 
 
         end function get_delimiter_name

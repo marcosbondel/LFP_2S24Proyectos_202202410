@@ -177,15 +177,44 @@ text_area = Text(root, width=140, height=30)
 text_area.place(x=20, y=30)
 text_area.insert(END, '''
 <!--Controles
-//#$comentario
+// Este bloque tambien puede recibir comentarios
 Contenedor contlogin;
-Contenedor contFondo; 
-Boton cmdIngresar; 
-Clave pswClave; Etiqueta passw; Etiqueta Nombre; Texto Texto0; Contenedor contlogo2; Contenedor ContLogo1; Contenedor ContBody;
+Contenedor contFondo;
+Boton cmdIngresar;
+Clave pswClave;
+Etiqueta passw;
+Etiqueta Nombre;
+Texto Texto0;
+Contenedor contlogo2;
+Contenedor ContLogo1;
+Contenedor ContBody;
 Controles -->
 <!--propiedades
-//#$comentario
-contlogin.setAncho(190);contlogin.setAlto(150);
+contlogin.setAncho(190);
+contlogin.setAlto(150);
+contlogin.setColorFondo(47,79,79);
+contFondo.setAncho(800);
+contFondo.setAlto(100);
+contFondo.setColorFondo(64,64,64);
+cmdIngresar.setTexto("Ingresar");
+pswClave.setTexto("");
+passw.setAncho(53);
+passw.setAlto(13 );
+passw.setColorLetra(128,128,128);
+passw.setTexto("Password");
+Nombre.setAncho(44); 
+Nombre.setAlto(13);
+Nombre.setColorLetra(128,128,128); 
+Nombre.setTexto("Nombre");
+contlogo2.setAncho(150); 
+contlogo2.setAlto( 50);
+contlogo2.setColorFondo(0,128,128);
+ContLogo1.setAncho(50); 
+ContLogo1.setAlto( 50);
+ContLogo1.setColorFondo(64,64,64);
+ContBody.setAncho(800); 
+ContBody.setAlto(300);
+ContBody.setColorFondo(64,224,208);
 propiedades -->
 ''')
 
