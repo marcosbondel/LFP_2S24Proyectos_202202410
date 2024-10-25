@@ -6,7 +6,14 @@ module ControlModule
         character(len=100) :: control_id
         character(len=100) :: cte_control
         character(len=100) :: belongs_to_id
-        character(len=:), allocatable :: params(:)
+        character(len=100) :: font_color(3)
+        character(len=100) :: text
+        character(len=100) :: alignment
+        character(len=100) :: background_color(3)
+        character(len=100) :: control_marked
+        character(len=100) :: group
+        character(len=100) :: height
+        character(len=100) :: width
 
         ! contains
         !     procedure :: build_control
@@ -25,11 +32,24 @@ module ControlModule
             character(len=*), intent(in) :: cte_control
             type(Control) :: new_control
 
-            new_control%control_id = control_id
-            new_control%cte_control = cte_control
+            new_control%control_id = trim(control_id)
+            new_control%cte_control = trim(cte_control)
+
+            new_control%belongs_to_id = ''
+            new_control%font_color(1) = ''
+            new_control%font_color(2) = ''
+            new_control%font_color(3) = ''
+            new_control%text = ''
+            new_control%alignment = ''
+            new_control%background_color(1) = ''
+            new_control%background_color(2) = ''
+            new_control%background_color(3) = ''
+            new_control%control_marked = ''
+            new_control%group = ''
+            new_control%height = ''
+            new_control%width = ''
 
             call add_control(size(controls), new_control, controls)
-
 
         end subroutine build_control
 
@@ -63,25 +83,45 @@ module ControlModule
             records = tempRecords
         end subroutine add_control
 
-        ! subroutine build_control(self)
-        !     implicit none
+        subroutine add_properties(controls, control_id, cte_control, style_property, param1, param2, param3)
+            implicit none
 
-        !     class(Control), intent(in) :: self
+            type(Control), intent(inout), allocatable :: controls(:)
+            character(len=*), intent(in) :: control_id, cte_control, style_property, param1, param2, param3
+            integer :: i
 
-        ! end subroutine build_control
+            do i = 1, size(controls), 1
+                
+                if(trim(adjustl(controls(i)%control_id)) == trim(adjustl(control_id))) then
+                    if(style_property == 'setColorLetra') then
+                        controls(i)%font_color(1) = trim(param1)
+                        controls(i)%font_color(2) = trim(param2)
+                        controls(i)%font_color(3) = trim(param3)
+                    else if(style_property == 'setTexto') then
+                        controls(i)%text = trim(param1)
+                    else if(style_property == 'setAlineacion') then
+                        controls(i)%alignment = trim(param1)
+                    else if(style_property == 'setColorFondo') then
+                        controls(i)%background_color(1) = trim(param1)
+                        controls(i)%background_color(2) = trim(param2)
+                        controls(i)%background_color(3) = trim(param3)
+                    else if(style_property == 'setMarcada') then
+                        controls(i)%control_marked = trim(param1)
+                    else if(style_property == 'setGrupo') then
+                        controls(i)%group = trim(param1)
+                    else if(style_property == 'setAncho') then
+                        print *, param1
+                        controls(i)%width = trim(param1)
+                    else if(style_property == 'setAlto') then
+                        print *, param1
+                        controls(i)%height = trim(param1)
+                    end if
 
-        ! subroutine add_attrs(self)
-        !     implicit none
+                end if
 
-        !     class(Control), intent(in) :: self
+            end do
+            
 
-        ! end subroutine add_attrs
-
-        ! subroutine add_location(self)
-        !     implicit none
-
-        !     class(Control), intent(in) :: self
-
-        ! end subroutine add_location
+        end subroutine add_properties
 
 end module ControlModule

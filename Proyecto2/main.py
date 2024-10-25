@@ -41,7 +41,7 @@ def analize():
     print(output_lines)
 
     # for i in range(len(output_lines)):
-    #     continent_contries_values = output_lines[i].split(";")
+    #     continent_contries_values = output_lines[i].split("")
 
     #     if i == 0:
     #         data_graph["name"] = continent_contries_values[0]

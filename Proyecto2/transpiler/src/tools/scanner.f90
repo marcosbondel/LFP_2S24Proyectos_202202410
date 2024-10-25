@@ -86,6 +86,7 @@ module LexicalAnalyzer
                     else if(self%str_collector == 'propiedades') then
                         call self%build_token(i, j, 'propiedades', 'BLOQUE_PROPIEDADES')
                     else if(self%str_collector == '.' .and. not_go_before_line_comment(character_stream(1:i))) then
+                        print *, "NOT HERE"
                         call self%build_token(i, j, '.', 'PUNTO')
                     else if(self%str_collector == ',' .and. not_go_before_line_comment(character_stream(1:i))) then
                         call self%build_token(i, j, ',', 'COMA')
@@ -126,7 +127,7 @@ module LexicalAnalyzer
 
                     ! Colocacion block
                     else if(self%str_collector == 'Colocacion') then
-                        call self%build_token(i, j, 'Colocacion', 'COLOCACION')
+                        call self%build_token(i, j, 'Colocacion', 'BLOQUE_COLOCACION')
                     else if(self%str_collector == 'setPosicion') then
                         call self%build_token(i, j, 'setPosicion', 'PROPIEDAD_COLOCACION')
                     else if(self%str_collector == 'add') then

@@ -12,8 +12,9 @@ module SyntaxAnalyzer
 
         ! Variables for tracking HTML tags creation
         ! For controls
-        character(len=:), allocatable :: cte_controles ! CTE_CONTROLES
-        character(len=:), allocatable :: control_id ! IDENTIFIER
+        character(len=100) :: cte_controles ! CTE_CONTROLES
+        character(len=100) :: control_id ! IDENTIFIER
+        character(len=100) :: style_property, param1, param2, param3
 
         type(Control), allocatable :: controls(:)
         type(Token), allocatable :: tokens(:)
@@ -29,6 +30,8 @@ module SyntaxAnalyzer
             procedure :: build_controls
             procedure :: build_intermediate_code
             procedure :: create_files
+            procedure :: track_param
+            procedure :: clean_param_trackers
     end type
 
     contains
@@ -48,6 +51,10 @@ module SyntaxAnalyzer
             self%context = ""
             self%cte_controles = ""
             self%control_id = ""
+            self%style_property = ""
+            self%param1 = ""
+            self%param2 = ""
+            self%param3 = ""
 
             call self%init_pile()
             ! print *, 'Initial pile: '
@@ -107,7 +114,8 @@ module SyntaxAnalyzer
 
             ! Gramatica Controles
             !S              ->      <!--Controles COMMENT CDeclaration COMMENT Controles-->
-            !CDeclaration   ->      CTE_CONTROLES IDENTIFIER ;
+            !S              ->      <!--Controles COMMENT CDeclaration Controles-->
+            !CDeclaration   ->      CTE_CONTROLES IDENTIFIER ; COMMENT
             !               |      
             !COMMENT        ->      // IDENTIFIER COMMENT
             !               |       
@@ -137,15 +145,17 @@ module SyntaxAnalyzer
                 ! We first have to analyze the lexeme
                 ! If the symbol matches exactly with the token, then it means it is a terminal symbol
                 ! and we remove it just like that
-                call check_context(self, trim(self%tokens(i)%lexeme))
+                call check_context(self, trim(self%tokens(i)%lex_type))
 
                 
-                if(trim(self%tokens(i)%lexeme) == trim(self%pile(size(self%pile))) .or. trim(self%tokens(i)%lex_type) == trim(self%pile(size(self%pile)))) then
+                ! if(trim(self%tokens(i)%lexeme) == trim(self%pile(size(self%pile))) .or. trim(self%tokens(i)%lex_type) == trim(self%pile(size(self%pile)))) then
+                if(trim(self%tokens(i)%lexeme) == trim(self%pile(size(self%pile)))) then
+
 
                     if(trim(self%pile(size(self%pile))) == 'PUNTO_Y_COMA') then
-                        print *, "JODEERRRRRR"
                         call build_controls(self)
                     end if
+                    
 
                     call remove_record(size(self%pile), size(self%pile), self%pile)
                 ! We analyze the token(lex_type), and work on the production respectively
@@ -164,21 +174,24 @@ module SyntaxAnalyzer
             class(Parser), intent(inout) :: self
             character(len=*), intent(in) :: symbol, lexeme, token
 
-            ! print *, symbol
+            ! print *, trim(self%pile(size(self%pile)))
             ! print *, token
             ! print *, lexeme
 
             if(symbol == 'CDeclaration') then
                 if (token == 'CTE_CONTROLES') then
-                    call add_record(size(self%pile), "PUNTO_Y_COMA", self%pile)
-                    call add_record(size(self%pile), "IDENTIFICADOR", self%pile)
-                    call add_record(size(self%pile), "CTE_CONTROLES", self%pile)
+                    call add_record(size(self%pile), 'PUNTO_Y_COMA', self%pile)
+                    call add_record(size(self%pile), 'IDENTIFICADOR', self%pile)
+                    call add_record(size(self%pile), 'CTE_CONTROLES', self%pile)
                 else
                     call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
+                    
+                    if(token == 'BLOQUE_CONTROLES') then
+                        call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
+                    end if
                 end if
             else if(symbol == 'COMMENT') then
                 if(token == "BARRA_DIAGONAL") then
-                    call add_record(size(self%pile), "COMMENT", self%pile)
                     call add_record(size(self%pile), "BARRA_DIAGONAL", self%pile)
                     call add_record(size(self%pile), "BARRA_DIAGONAL", self%pile)
                 else if(token == "CTE_CONTROLES") then
@@ -187,18 +200,23 @@ module SyntaxAnalyzer
                     call add_record(size(self%pile), "IDENTIFICADOR", self%pile)
                     call add_record(size(self%pile), "CTE_CONTROLES", self%pile)
                 else
+                    call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
                 end if
             else if(symbol == 'CProperties') then
-                if(token == "IDENTIFICADOR") then
-                    call add_record(size(self%pile), "IDENTIFICADOR", self%pile)
-                    call add_record(size(self%pile), "PUNTO", self%pile)
-                    call add_record(size(self%pile), "PROPIEDAD_PROPIEDADES", self%pile)
-                    call add_record(size(self%pile), "PARENTESIS_ABRE", self%pile)
-                    call add_record(size(self%pile), "PARAM", self%pile)
-                    call add_record(size(self%pile), "PARENTESIS_CIERRE", self%pile)
+                if(token == "IDENTIFICADOR") then                    
                     call add_record(size(self%pile), "PUNTO_Y_COMA", self%pile)
+                    call add_record(size(self%pile), "PARENTESIS_CIERRE", self%pile)
+                    call add_record(size(self%pile), "PARAM", self%pile)
+                    call add_record(size(self%pile), "PARENTESIS_ABRE", self%pile)
+                    call add_record(size(self%pile), "PROPIEDAD_PROPIEDADES", self%pile)
+                    call add_record(size(self%pile), "PUNTO", self%pile)
+                    call add_record(size(self%pile), "IDENTIFICADOR", self%pile)
                 else
                     call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
+
+                    if(token == 'BLOQUE_PROPIEDADES') then
+                        call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
+                    end if
                 end if
             else if(symbol == 'PARAM') then
                 if(token == "NUMERO") then
@@ -209,8 +227,16 @@ module SyntaxAnalyzer
                 else if(token == "CADENA") then
                     call remove_record(size(self%pile), size(self%pile), self%pile) ! We remove 'PARAM'
                     call add_record(size(self%pile), "CADENA", self%pile)
+                else if(token == "VALOR_PROPIEDAD") then
+                    call remove_record(size(self%pile), size(self%pile), self%pile) ! We remove 'PARAM'
+                    call add_record(size(self%pile), "VALOR_PROPIEDAD", self%pile)
                 else
                     call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
+                end if
+            else if(symbol == 'COMA') then
+                if(token == 'PARENTESIS_CIERRE') then
+                    call remove_record(size(self%pile), size(self%pile), self%pile)
+                    call remove_record(size(self%pile), size(self%pile), self%pile)
                 end if
             else if(symbol == 'NUMERO') then
                 if(token == "NUMERO") then
@@ -230,6 +256,10 @@ module SyntaxAnalyzer
                 end if
             end if
 
+            ! print *, trim(self%pile(size(self%pile)))
+            ! print *, token
+            ! print *, lexeme
+
         end subroutine transitioner
 
         subroutine check_token_symbol(self, symbol, lexeme, token)
@@ -242,16 +272,16 @@ module SyntaxAnalyzer
                 call remove_record(size(self%pile), size(self%pile), self%pile)
                 call build_controls(self)
             else if(symbol == 'IDENTIFICADOR' .and. token == 'IDENTIFICADOR') then
-                self%control_id = lexeme
+                self%control_id = trim(lexeme)
                 call remove_record(size(self%pile), size(self%pile), self%pile)
             else if(symbol == 'CTE_CONTROLES' .and. token == 'CTE_CONTROLES') then
                 self%cte_controles = lexeme
                 call remove_record(size(self%pile), size(self%pile), self%pile)
             else if(symbol == 'BARRA_DIAGONAL' .and. token == 'BARRA_DIAGONAL') then
                 call remove_record(size(self%pile), size(self%pile), self%pile)
-            else if(symbol == 'COMENTARIO' .and. token == 'COMENTARIO') then
+            else if(symbol == 'COMMENT' .and. token == 'COMMENT') then
                 call remove_record(size(self%pile), size(self%pile), self%pile)
-            
+        
             else if(symbol == 'PUNTO' .and. token == 'PUNTO') then
                 call remove_record(size(self%pile), size(self%pile), self%pile)
             else if(symbol == 'PARENTESIS_ABRE' .and. token == 'PARENTESIS_ABRE') then
@@ -261,24 +291,63 @@ module SyntaxAnalyzer
             else if(symbol == 'COMA' .and. token == 'COMA') then
                 call remove_record(size(self%pile), size(self%pile), self%pile)
             else if(symbol == 'CADENA' .and. token == 'CADENA') then
+                call self%track_param(lexeme)
                 call remove_record(size(self%pile), size(self%pile), self%pile)
             else if(symbol == 'NUMERO' .and. token == 'NUMERO') then
+                call self%track_param(lexeme)
+                call remove_record(size(self%pile), size(self%pile), self%pile)
+            else if(symbol == 'VALOR_PROPIEDAD' .and. token == 'VALOR_PROPIEDAD') then
+                call remove_record(size(self%pile), size(self%pile), self%pile)
+            ! else if(symbol == 'PROPIEDAD_PROPIEDADES' .and. token == 'PROPIEDAD_PROPIEDADES') then
+            !     self%style_property = lexeme
+            !     call remove_record(size(self%pile), size(self%pile), self%pile)
+            else if(symbol == token .or. symbol == lexeme) then
+                if(symbol == 'PROPIEDAD_PROPIEDADES') then
+                    self%style_property = lexeme
+                end if
                 call remove_record(size(self%pile), size(self%pile), self%pile)
             end if
 
         end subroutine check_token_symbol
+
+        subroutine track_param(self, param)
+            implicit none
+            
+            class(Parser), intent(inout) :: self
+            character(len=*), intent(in) :: param
+
+            if(self%param1 == '') then
+                self%param1 = param
+            else if(self%param2 == '') then
+                self%param2 = param
+            else if(self%param3 == '') then
+                self%param3 = param
+            end if
+
+        end subroutine track_param
+
+        subroutine clean_param_trackers(self)
+            implicit none
+            
+            class(Parser), intent(inout) :: self
+
+            self%param1 = ''
+            self%param2 = ''
+            self%param3 = ''
+
+        end subroutine clean_param_trackers
 
         subroutine check_context(self, str)
             implicit none
             
             class(Parser), intent(inout) :: self
             character(len=*), intent(in) :: str
-
-            if(str == 'Controles') then
+            
+            if(str == 'BLOQUE_CONTROLES') then
                 self%context = 'Controles'
-            else if(str == 'propiedades') then
+            else if(str == 'BLOQUE_PROPIEDADES') then
                 self%context = 'propiedades'
-            else if(str == 'Colocacion') then
+            else if(str == 'BLOQUE_COLOCACION') then
                 self%context = 'Colocacion'
             end if
 
@@ -291,12 +360,13 @@ module SyntaxAnalyzer
 
             if(self%context == 'Controles') then
                 call build_control(self%controls, self%control_id, self%cte_controles)
-                print *, "control added"
             else if(self%context == 'propiedades') then
-
+                call add_properties(self%controls, trim(self%control_id), trim(self%cte_controles), trim(self%style_property), trim(self%param1), trim(self%param2), trim(self%param3))
             else if(self%context == 'Colocacion') then
             
             end if
+
+            call self%clean_param_trackers()
 
         end subroutine build_controls
 
@@ -311,37 +381,31 @@ module SyntaxAnalyzer
             tag = ""
 
             do i = 1, size(self%controls), 1
-                
+
+                ! print *, self%controls(i)%width
+
                 if(self%controls(i)%cte_control == 'Etiqueta') then
                     tag = '<label id="ID"> TEXT </label>'
-                    print *, "entro"
                     call add_record(size(self%html), trim(tag), self%html)
                 else if(self%controls(i)%cte_control == 'Boton') then
-                    print *, "entro"
                     tag = '<input type="submit" id="ID" value="Texto" style="text-align: Alineacion"/>'
                     call add_record(size(self%html), trim(tag), self%html)
                 else if(self%controls(i)%cte_control == 'Check') then
-                    print *, "entro"
                     tag = '<input type="checkbox" id="JCheckBox0" Marcado(checked) />JCheckBox0'
                     call add_record(size(self%html), trim(tag), self%html)
                 else if(self%controls(i)%cte_control == 'RadioBoton') then
-                    print *, "entro"
                     tag = '<input type="radio" name="Group" id="ID"Marcado />Texto'
                     call add_record(size(self%html), trim(tag), self%html)
                 else if(self%controls(i)%cte_control == 'Texto') then
-                    print *, "entro"
                     tag = '<input type = "text" id="ID" value="Texto" style="text-align: Alineacion" />'
                     call add_record(size(self%html), trim(tag), self%html)
                 else if(self%controls(i)%cte_control == 'AreaTexto') then
-                    print *, "entro"
                     tag = '<textarea id="ID">Texto</textarea>'
                     call add_record(size(self%html), trim(tag), self%html)
                 else if(self%controls(i)%cte_control == 'Clave') then
-                    print *, "entro"
                     tag = '<input type = "password" id="ID" value="Texto" style="text-align: Alineacion"/>'
                     call add_record(size(self%html), trim(tag), self%html)
                 else if(self%controls(i)%cte_control == 'Contenedor') then
-                    print *, "entro"
                     tag = '<div id="ID"> </div>'
                     call add_record(size(self%html), trim(tag), self%html)
                 end if
@@ -376,7 +440,6 @@ module SyntaxAnalyzer
             write(10,*) '    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">'
             write(10,*) '    <title>Transpilador LFP</title>'
             write(10,*) '</head>'
-            write(10,*) '<body>'
 
             do i = 1, size(self%html), 1
                 write(10,*) trim(self%html(i))

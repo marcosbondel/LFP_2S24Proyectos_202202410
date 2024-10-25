@@ -274,6 +274,8 @@ module Utils
                 delimiter_name = "GUION"
             else if( c == ">") then
                 delimiter_name = "MAYOR_QUE"
+            else if( c == ".") then
+                delimiter_name = "PUNTO"
             end if 
 
         end function get_delimiter_name
