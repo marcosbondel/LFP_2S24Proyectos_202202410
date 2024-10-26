@@ -3,8 +3,9 @@ module ErrorModule
 
     type :: Error
         integer :: no
-        character(len=100) :: err
-        character(len=100) :: description
+        character(len=100) :: err_type
+        character(len=10000) :: err
+        character(len=10000) :: description
         integer :: row
         integer :: column
     end type

@@ -131,7 +131,7 @@ module LexicalAnalyzer
                         ! call self%build_token(i, j, 'setPosicion', 'PROPIEDAD_COLOCACION')
                         call self%build_token(i, j, 'setPosicion', 'PROPIEDAD_PROPIEDADES')
                     else if(self%str_collector == 'add') then
-                        call self%build_token(i, j, 'add', 'PROPIEDAD_COLOCACION')
+                        ! call self%build_token(i, j, 'add', 'PROPIEDAD_COLOCACION')
                         call self%build_token(i, j, 'add', 'PROPIEDAD_PROPIEDADES')
                     else if(self%str_collector == 'this') then
                         call self%build_token(i, j, 'this', 'THIS')
@@ -180,8 +180,8 @@ module LexicalAnalyzer
                             character_stream(i:i) /= '"' .and. &
                             .not. (self%str_collector(1:1) == '"' .or. self%str_collector(len(self%str_collector):len(self%str_collector)) == '"')) then
                         
-                            print *, "ERROR: ", self%str_collector
                             call self%build_error(i, j, self%str_collector, .false.)
+                            call self%build_token(i, j, self%str_collector, 'ERROR', .false.)
                             self%str_collector = ''
                         end if
                     end if
@@ -221,7 +221,7 @@ module LexicalAnalyzer
             new_lexeme%row = i
             new_lexeme%column = j
 
-            call self%add_token(self%no_tokens, new_lexeme)
+            call self%add_token(size(self%tokens), new_lexeme)
 
             self%no_tokens = self%no_tokens + 1
 
@@ -241,15 +241,17 @@ module LexicalAnalyzer
 
             type(Error) :: new_error
 
+            self%no_errors = self%no_errors + 1
+
             new_error%no = self%no_errors
             new_error%err = trim(str_collector)
-            new_error%description = "Elemento Lexico desconocido"
+            new_error%description = 'Elemento Lexico desconocido'
             new_error%row = i
             new_error%column = j
+            new_error%err_type = 'LEXICO'
 
-            call self%add_error(self%no_errors, new_error)
+            call self%add_error(size(self%errors), new_error)
 
-            self%no_errors = self%no_errors + 1
 
             if( .not. present(clean_str_collector)) then
                 self%str_collector = "" ! We clean the buffer

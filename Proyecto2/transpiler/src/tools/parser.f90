@@ -6,6 +6,7 @@ module SyntaxAnalyzer
     implicit none
 
     type :: Parser
+        integer :: no_errors
         character(len=:), allocatable :: pile(:)
         character(len=:), allocatable :: s ! stands for S status, initial status
         character(len=:), allocatable :: context
@@ -18,6 +19,7 @@ module SyntaxAnalyzer
 
         type(Control), allocatable :: controls(:)
         type(Token), allocatable :: tokens(:)
+        type(Error), allocatable :: errors(:)
         
         character(len=:), allocatable :: html(:)
 
@@ -32,14 +34,19 @@ module SyntaxAnalyzer
             procedure :: create_html_file
             procedure :: track_param
             procedure :: clean_param_trackers
+            
+            procedure :: build_error
+            procedure :: add_error
     end type
 
     contains
-        subroutine analyze(self, tokens)
+        subroutine analyze(self, tokens, errors, no_errors)
             implicit none
 
             class(Parser), intent(inout) :: self
             type(Token), intent(in), allocatable :: tokens(:)
+            type(Error), intent(in), allocatable :: errors(:)
+            integer, intent(in) :: no_errors
             integer :: i
 
             ! Init value
@@ -48,6 +55,8 @@ module SyntaxAnalyzer
             self%s = '<!--Controles COMMENT CDeclaration COMMENT Controles--><!--propiedades COMMENT CProperties COMMENT propiedades--><!--Colocacion COMMENT CLocate COMMENT Colocacion -->'
             ! self%s = '<!--Controles COMMENT CDeclaration COMMENT Controles--><!--propiedades COMMENT CProperties COMMENT propiedades-->'
             self%tokens = tokens
+            self%errors = errors
+            self%no_errors = no_errors
             self%context = ""
             self%cte_controles = ""
             self%control_id = ""
@@ -64,10 +73,10 @@ module SyntaxAnalyzer
             
             ! Once the pile is ready we start comparisons against the characters stream
             call self%analyze_controls()
-            print *, 'Final pile: '
-            do i = 1, size(self%pile), 1
-                print *, trim(self%pile(i))
-            end do
+            ! print *, 'Final pile: '
+            ! do i = 1, size(self%pile), 1
+            !     print *, trim(self%pile(i))
+            ! end do
 
             call build_intermediate_code(self)
             call create_html_file(self, 'index')
@@ -184,10 +193,19 @@ module SyntaxAnalyzer
                     call add_record(size(self%pile), 'IDENTIFICADOR', self%pile)
                     call add_record(size(self%pile), 'CTE_CONTROLES', self%pile)
                 else
-                    call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
+                    ! call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
                     
+                    ! if(token == 'BLOQUE_CONTROLES') then
+                    !     call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
+                    ! end if
+
                     if(token == 'BLOQUE_CONTROLES') then
                         call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
+                        call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
+                    else if(token == 'COMMENT') then
+                        call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
+                    else
+                        call self%build_error(trim(self%pile(size(self%pile))), token, lexeme)
                     end if
                 end if
             else if(symbol == 'COMMENT') then
@@ -222,10 +240,15 @@ module SyntaxAnalyzer
                     call add_record(size(self%pile), "PUNTO", self%pile)
                     call add_record(size(self%pile), "IDENTIFICADOR", self%pile)
                 else
-                    call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
+                    ! call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
 
                     if(token == 'BLOQUE_PROPIEDADES') then
                         call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
+                        call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
+                    else if(token == 'COMMENT') then
+                        call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
+                    else
+                        call self%build_error(trim(self%pile(size(self%pile))), token, lexeme)
                     end if
                 end if
             else if(symbol == 'PARAM') then
@@ -274,13 +297,30 @@ module SyntaxAnalyzer
                     call add_record(size(self%pile), 'PUNTO', self%pile)
                     call add_record(size(self%pile), 'THIS', self%pile)
                 else
-                    call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
+                    ! call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
+
+                    ! if(token == 'BLOQUE_COLOCACION') then
+                    !     call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
+                    ! end if
 
                     if(token == 'BLOQUE_COLOCACION') then
                         call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
+                        call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
+                    else if(token == 'COMMENT') then
+                        call remove_record(size(self%pile), size(self%pile), self%pile) ! EPSILON
+                    else
+                        ! print symbol, token, lexeme
+                        call self%build_error(trim(self%pile(size(self%pile))), token, lexeme)
                     end if
+
+                end if
+            else
+                if(symbol /= token .and. symbol /= lexeme) then
+                    ! print *, 'SYNTAX ERROR: ', trim(self%pile(size(self%pile))), token, lexeme
+                    call self%build_error(trim(self%pile(size(self%pile))), token, lexeme)
                 end if
             end if
+
 
             ! print *, trim(self%pile(size(self%pile)))
             ! print *, token
@@ -331,8 +371,6 @@ module SyntaxAnalyzer
                     call self%track_param(lexeme)
                 end if
                 call remove_record(size(self%pile), size(self%pile), self%pile)
-            else
-                print *, "hmmmmmmmmmm"
             end if
 
         end subroutine check_token_symbol
@@ -354,8 +392,6 @@ module SyntaxAnalyzer
                     end if
                 end if
             end if
-            
-            
 
         end subroutine track_param
 
@@ -524,5 +560,57 @@ module SyntaxAnalyzer
             close(unit_number)
 
         end subroutine create_css_file
+
+        subroutine build_error(self, expected, given, lexeme)
+            implicit none
+
+            class(Parser), intent(inout) :: self
+            character(len=*) :: expected, given, lexeme
+
+            type(Error) :: new_error
+            
+            self%no_errors = self%no_errors + 1
+
+            new_error%no = self%no_errors
+            new_error%err = trim(given)
+            new_error%description = 'Se esperaba ' // expected //', se recibio '// given // '(' // lexeme // ')'
+            new_error%row = 1
+            new_error%column = 1
+            new_error%err_type = 'SINTACTICO'
+
+            call self%add_error(size(self%errors), new_error)
+
+
+        end subroutine build_error
+
+        subroutine add_error(self, length, new_record)
+            implicit none
+
+            class(Parser), intent(inout) :: self
+
+            integer :: i
+            integer, intent(in) :: length
+            type(Error), intent(in) :: new_record
+
+            type(Error), allocatable :: temp_records(:)
+
+            ! The temprary array will always be greater than the actual array
+            allocate(temp_records(length + 1))
+
+            do i = 1, size(self%errors)
+                temp_records(i) = self%errors(i)
+            end do
+
+            ! We add the new record
+            temp_records(length + 1) = new_record
+
+            if(allocated(self%errors)) then
+                deallocate(self%errors)
+            end if
+
+            allocate(self%errors(length + 1))
+
+            self%errors = temp_records
+        end subroutine add_error
 
 end module SyntaxAnalyzer
