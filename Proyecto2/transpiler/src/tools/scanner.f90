@@ -124,10 +124,6 @@ module LexicalAnalyzer
                     else if(self%str_collector == 'derecho') then
                         call self%build_token(i, j, 'derecho', 'VALOR_PROPIEDAD')
                     
-                    ! else if(self%str_collector == '"') then
-                    !     call self%build_token(i, j, '"', 'COMILLAS_DOBLES')
-                    
-
                     ! Colocacion block
                     else if(self%str_collector == 'Colocacion') then
                         call self%build_token(i, j, 'Colocacion', 'BLOQUE_COLOCACION')
@@ -165,15 +161,9 @@ module LexicalAnalyzer
                     ! We check if the buffer contains an identifier
                     else if(is_delimiter(character_stream(i:i)) .and. is_alpha(self%str_collector(1:1))) then
 
-                        ! if( (j - 1) == j_track .and. is_slash(self%str_collector(1:1))) then
-                            call self%build_token(i, j, self%str_collector(1:len(self%str_collector) - 1), 'IDENTIFICADOR', .false.)
-                            call self%build_token(i, j, character_stream(i:i), get_delimiter_name(character_stream(i:i)), .false.)
-                            self%str_collector = "" ! We clean the buffer
-                        ! else
-                            ! call self%build_token(i, j, self%str_collector(1:len(self%str_collector) - 1), 'IDENTIFICADOR', .false.)
-                            ! call self%build_token(i, j, character_stream(i:i), get_delimiter_name(character_stream(i:i)), .false.)
-                            ! self%str_collector = "" ! We clean the buffer
-                        ! end if
+                        call self%build_token(i, j, self%str_collector(1:len(self%str_collector) - 1), 'IDENTIFICADOR', .false.)
+                        call self%build_token(i, j, character_stream(i:i), get_delimiter_name(character_stream(i:i)), .false.)
+                        self%str_collector = "" ! We clean the buffer
 
                     ! We check if the buffer contains a number
                     else if(is_delimiter(character_stream(i:i)) .and. is_number(self%str_collector(1:len(self%str_collector) - 1))) then
@@ -194,16 +184,12 @@ module LexicalAnalyzer
                             call self%build_error(i, j, self%str_collector, .false.)
                             self%str_collector = ''
                         end if
-                        ! We save errors
-                        ! print *, "ERROR: ", character_stream(i:i), self%str_collector
                     end if
-
                 
                     ! TODO: analyze strings separately
                     if(len(self%str_collector) > 1 .and. self%str_collector(1:1) == '"' .and. self%str_collector(len(self%str_collector):len(self%str_collector)) == '"') then
                         call self%build_token(i, j, self%str_collector, 'CADENA')
                     end if
-
 
                     i = i + 1
                 end do

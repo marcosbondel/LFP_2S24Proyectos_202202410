@@ -1,6 +1,283 @@
+# import subprocess
+# from tkinter import *
+# from tkinter import messagebox as MessageBox
+# from pathlib import Path
+# from graphviz import Digraph
+# from tkinter import filedialog as FileDialog
+# from io import open
+# from PIL import Image, ImageTk
+
+# # Create a new directed data_graph
+# dot = Digraph()
+# data_graph = { "name": "", "continents": []}
+
+# path = ""
+# graph_images_counter = 0
+
+# # función que se ejecuta al presionar el botón "Analizar"
+# def analize():
+#     # Obtener el dato ingresado en la entrada
+#     data = text_area.get("1.0", END)
+
+#     if data.strip() == "":
+#         MessageBox.showinfo("Informacion", "Debe ingresar texto")
+#         return
+
+#     # Ejecutar el programa Fortran y enviar el dato
+#     result = subprocess.run(
+#         ["./Proyecto2/transpiler/built/transpiler"],  # Ejecutable compilado
+#         input=data,  # Enviar el dato como cadena de texto
+#         stdout=subprocess.PIPE,  # Capturar la salida del programa
+#         text=True  # Asegurarse de que la salida se maneje como texto
+#     )
+
+#     if not result.stdout:
+#         MessageBox.showerror("Error", "Algo salio mal : ()")
+#         return
+
+#     output_lines = result.stdout.strip().split('\n')
+#     data_graph = { "name": "", "continents": []}
+#     continents = []
+#     print(output_lines)
+
+#     # for i in range(len(output_lines)):
+#     #     continent_contries_values = output_lines[i].split("")
+
+#     #     if i == 0:
+#     #         data_graph["name"] = continent_contries_values[0]
+
+#     #     if len(continent_contries_values) > 0 and i > 0:
+#     #         continent_info = continent_contries_values[0].split(",")
+#     #         continent = {
+#     #             "name": continent_info[0],
+#     #             "saturation": int(continent_info[1]),
+#     #             "color": continent_info[2],
+#     #             "countries": [{
+#     #                 "name": country.split(",")[0], 
+#     #                 "saturation": int(country.split(",")[1]), 
+#     #                 "population": int(country.split(",")[2]), 
+#     #                 "flag": country.split(",")[3].replace("\\", "/"),
+#     #                 "color": country.split(",")[4] 
+#     #             } for country in continent_contries_values[1::] ],
+#     #         }
+
+#     #         data_graph["continents"].append(continent)
+
+#     # dot.node(data_graph["name"], data_graph["name"])
+
+#     # for continent in data_graph["continents"]:
+#     #     dot.node(continent["name"], f"{continent['name']} | {continent['saturation']}", style='filled', fillcolor=f"{continent['color']}")
+#     #     dot.edge(data_graph["name"], continent["name"])
+
+#     #     for country in continent["countries"]:
+#     #         dot.node(country["name"], f"{country['name']} | {country['saturation']}", style='filled', fillcolor=f"{country['color']}")
+#     #         dot.edge(continent["name"], country["name"])
+
+#     # global graph_images_counter
+#     # graph_images_counter += 1
+
+#     # dot.render(f"./Proyecto1/temp/graph{graph_images_counter}", format='png', cleanup=True)
+#     # load_image_graph()
+
+
+# def show_student_info():
+#     MessageBox.showerror("Datos estudiante", "202202410 - Marcos Daniel Bonifasi de Leon")
+
+# def open_file():
+#     global path
+#     path = FileDialog.askopenfilename(
+#         initialdir='.', 
+#         filetypes=(("Ficheros de texto", "*.ORG"),),
+#         title="Abrir un archivo ORG")
+
+#     if path != "":
+#         fichero = open(path, 'r')
+#         content = fichero.read()
+#         text_area.delete(1.0,'end')
+#         text_area.insert('insert', content)
+#         fichero.close()
+#         root.title(path + " - Mi editor")
+
+# def save():
+#     data = text_area.get("1.0", END)
+
+#     if data.strip() == "":
+#         MessageBox.showinfo("Informacion", "Debe ingresar texto")
+#         return
+
+#     if path != "":
+#         content = text_area.get(1.0,'end-1c')
+#         fichero = open(path, 'w+')
+#         fichero.write(content)
+#         fichero.close()
+#     else:
+#         save_as()
+
+# def save_as():
+#     global path
+
+#     fichero = FileDialog.asksaveasfile(title="Guardar fichero", mode="w", defaultextension=".ORG")
+
+#     data = text_area.get("1.0", END)
+
+#     if data.strip() == "":
+#         MessageBox.showinfo("Informacion", "Debe ingresar texto")
+#         return
+
+#     if fichero is not None:
+#         path = fichero.name
+#         content = text_area.get(1.0,'end-1c')
+#         fichero = open(path, 'w+')
+#         fichero.write(content)
+#         fichero.close()
+#     else:
+#         path = ""
+
+
+# # def load_image_graph():
+# #     global graph_images_counter
+
+# #     if graph_images_counter == 0:
+# #         return
+
+# #     image = Image.open(f"./Proyecto1/temp/graph{graph_images_counter}.png")
+# #     photo = ImageTk.PhotoImage(image)
+    
+# #     # Update the label with the image
+# #     image_label.config(image=photo)
+    
+# #     # Keep a reference to the image to prevent garbage collection
+# #     image_label.image = photo
+
+# def clear_text():
+#     text_area.delete('1.0', END)
+
+# root = Tk()
+
+# menubar = Menu(root)
+# filemenu = Menu(menubar, tearoff=0)
+# # filemenu.add_command(label="Nuevo")
+# filemenu.add_command(label="Abrir", command=open_file)
+# filemenu.add_command(label="Guardar", command=save)
+# filemenu.add_command(label="Guardar como", command=save_as)
+# filemenu.add_separator()
+# filemenu.add_command(label="Salir", command=root.quit)
+# menubar.add_cascade(label="Menu", menu=filemenu)
+
+# filemenu_student = Menu(menubar, tearoff=0)
+# filemenu_student.add_command(label="Datos estudiante", command=show_student_info)
+# menubar.add_cascade(label="Acerca de", menu=filemenu_student)
+
+# # etiqueta 
+# etq = Label(root, text="LFP Transpiler")
+# etq.pack()
+
+# # area de texto para el código fuente
+# text_area = Text(root, width=140, height=30)
+# text_area.place(x=20, y=30)
+# text_area.insert(END, '''
+# <!--Controles
+# // Este bloque tambien puede recibir comentarios
+# Contenedor contlogin;
+# Contenedor contFondo;
+# Boton cmdIngresar;
+# Clave pswClave;
+# Etiqueta passw;
+# Etiqueta Nombre;
+# Texto Texto0;
+# Contenedor contlogo2;
+# Contenedor ContLogo1;
+# Contenedor ContBody;
+# Controles -->
+# <!--propiedades
+# // Este bloque tambien puede recibir comentarios
+# contlogin.setAncho(190);
+# contlogin.setAlto(150);
+# contlogin.setColorFondo(47,79,79);
+# contFondo.setAncho(800);
+# contFondo.setAlto(100);
+# contFondo.setColorFondo(64,64,64);
+# cmdIngresar.setTexto("Ingresar");
+# pswClave.setTexto("");
+# passw.setAncho(53);
+# passw.setAlto(13 );
+# passw.setColorLetra(128,128,128);
+# passw.setTexto("Password");
+# Nombre.setAncho(44); 
+# Nombre.setAlto(13);
+# Nombre.setColorLetra(128,128,128); 
+# Nombre.setTexto("Nombre");
+# contlogo2.setAncho(150); 
+# contlogo2.setAlto( 50);
+# contlogo2.setColorFondo(0,128,128);
+# ContLogo1.setAncho(50); 
+# ContLogo1.setAlto( 50);
+# ContLogo1.setColorFondo(64,64,64);
+# ContBody.setAncho(800); 
+# ContBody.setAlto(300);
+# ContBody.setColorFondo(64,224,208);
+# propiedades -->
+# <!--Colocacion
+# contFondo.setPosicion(25,330);
+# this.add(contFondo);
+# contlogin.setPosicion(586,110);
+# ContBody.add(contlogin);
+# passw.setPosicion(11,54); 
+# contlogin.add(passw);
+# cmdIngresar.setPosicion(40,100);
+# contlogin.add(cmdIngresar);
+# pswClave.setPosicion(67,48);
+# contlogin.add(pswClave);
+# Nombre.setPosicion(8,21);
+# contlogin.add(Nombre);
+# contlogo2.setPosicion(88,25);
+# ContBody.add(contlogo2);
+# ContLogo1.setPosicion(36,25);
+# ContBody.add(ContLogo1);
+# ContBody.setPosicion(23,21);
+# this.add(ContBody);
+# Colocacion -->
+# ''')
+
+# image_label = Label(root)
+# image_label.place(x=80, y=500)
+
+# btnAnalyze = Button(root, text="Analizar", width=10, height=2, command=analize)
+# btnAnalyze.place(x=1050, y=100)
+
+# btnClear = Button(root, text="Limpiar", width=10, height=2, command=clear_text)
+# btnClear.place(x=1050, y=200)
+
+# root.config(menu=menubar)
+
+# root.title("LFP - Transpiler")
+# root.geometry("1200x850")
+# root.mainloop()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 import subprocess
 from tkinter import *
 from tkinter import messagebox as MessageBox
+from tkinter import ttk
 from pathlib import Path
 from graphviz import Digraph
 from tkinter import filedialog as FileDialog
@@ -14,239 +291,130 @@ data_graph = { "name": "", "continents": []}
 path = ""
 graph_images_counter = 0
 
-# función que se ejecuta al presionar el botón "Analizar"
-def analize():
-    # Obtener el dato ingresado en la entrada
+def analyze():
     data = text_area.get("1.0", END)
-
     if data.strip() == "":
-        MessageBox.showinfo("Informacion", "Debe ingresar texto")
+        MessageBox.showinfo("Information", "Please enter text")
         return
-
-    # Ejecutar el programa Fortran y enviar el dato
     result = subprocess.run(
-        ["./Proyecto2/transpiler/built/transpiler"],  # Ejecutable compilado
-        input=data,  # Enviar el dato como cadena de texto
-        stdout=subprocess.PIPE,  # Capturar la salida del programa
-        text=True  # Asegurarse de que la salida se maneje como texto
+        ["./Proyecto2/transpiler/built/transpiler"],
+        input=data,
+        stdout=subprocess.PIPE,
+        text=True
     )
-
     if not result.stdout:
-        MessageBox.showerror("Error", "Algo salio mal : ()")
+        MessageBox.showerror("Error", "Something went wrong : ()")
         return
-
     output_lines = result.stdout.strip().split('\n')
     data_graph = { "name": "", "continents": []}
     continents = []
     print(output_lines)
 
-    # for i in range(len(output_lines)):
-    #     continent_contries_values = output_lines[i].split("")
-
-    #     if i == 0:
-    #         data_graph["name"] = continent_contries_values[0]
-
-    #     if len(continent_contries_values) > 0 and i > 0:
-    #         continent_info = continent_contries_values[0].split(",")
-    #         continent = {
-    #             "name": continent_info[0],
-    #             "saturation": int(continent_info[1]),
-    #             "color": continent_info[2],
-    #             "countries": [{
-    #                 "name": country.split(",")[0], 
-    #                 "saturation": int(country.split(",")[1]), 
-    #                 "population": int(country.split(",")[2]), 
-    #                 "flag": country.split(",")[3].replace("\\", "/"),
-    #                 "color": country.split(",")[4] 
-    #             } for country in continent_contries_values[1::] ],
-    #         }
-
-    #         data_graph["continents"].append(continent)
-
-    # dot.node(data_graph["name"], data_graph["name"])
-
-    # for continent in data_graph["continents"]:
-    #     dot.node(continent["name"], f"{continent['name']} | {continent['saturation']}", style='filled', fillcolor=f"{continent['color']}")
-    #     dot.edge(data_graph["name"], continent["name"])
-
-    #     for country in continent["countries"]:
-    #         dot.node(country["name"], f"{country['name']} | {country['saturation']}", style='filled', fillcolor=f"{country['color']}")
-    #         dot.edge(continent["name"], country["name"])
-
-    # global graph_images_counter
-    # graph_images_counter += 1
-
-    # dot.render(f"./Proyecto1/temp/graph{graph_images_counter}", format='png', cleanup=True)
-    # load_image_graph()
-
-
 def show_student_info():
-    MessageBox.showerror("Datos estudiante", "202202410 - Marcos Daniel Bonifasi de Leon")
+    MessageBox.showerror("Student Data", "202202410 - Marcos Daniel Bonifasi de Leon")
 
 def open_file():
     global path
     path = FileDialog.askopenfilename(
         initialdir='.', 
-        filetypes=(("Ficheros de texto", "*.ORG"),),
-        title="Abrir un archivo ORG")
-
+        filetypes=(("Text files", "*.ORG"),),
+        title="Open an ORG file")
     if path != "":
-        fichero = open(path, 'r')
-        content = fichero.read()
-        text_area.delete(1.0,'end')
-        text_area.insert('insert', content)
-        fichero.close()
-        root.title(path + " - Mi editor")
+        with open(path, 'r') as fichero:
+            content = fichero.read()
+            text_area.delete(1.0,'end')
+            text_area.insert('insert', content)
+        root.title(path + " - My Editor")
 
 def save():
     data = text_area.get("1.0", END)
-
     if data.strip() == "":
-        MessageBox.showinfo("Informacion", "Debe ingresar texto")
+        MessageBox.showinfo("Information", "Please enter text")
         return
-
     if path != "":
-        content = text_area.get(1.0,'end-1c')
-        fichero = open(path, 'w+')
-        fichero.write(content)
-        fichero.close()
+        with open(path, 'w+') as fichero:
+            content = text_area.get(1.0,'end-1c')
+            fichero.write(content)
     else:
         save_as()
 
 def save_as():
     global path
-
-    fichero = FileDialog.asksaveasfile(title="Guardar fichero", mode="w", defaultextension=".ORG")
-
+    fichero = FileDialog.asksaveasfile(title="Save file", mode="w", defaultextension=".ORG")
     data = text_area.get("1.0", END)
-
     if data.strip() == "":
-        MessageBox.showinfo("Informacion", "Debe ingresar texto")
+        MessageBox.showinfo("Information", "Please enter text")
         return
-
     if fichero is not None:
         path = fichero.name
-        content = text_area.get(1.0,'end-1c')
-        fichero = open(path, 'w+')
-        fichero.write(content)
-        fichero.close()
+        with open(path, 'w+') as fichero:
+            content = text_area.get(1.0,'end-1c')
+            fichero.write(content)
     else:
         path = ""
 
-
-# def load_image_graph():
-#     global graph_images_counter
-
-#     if graph_images_counter == 0:
-#         return
-
-#     image = Image.open(f"./Proyecto1/temp/graph{graph_images_counter}.png")
-#     photo = ImageTk.PhotoImage(image)
-    
-#     # Update the label with the image
-#     image_label.config(image=photo)
-    
-#     # Keep a reference to the image to prevent garbage collection
-#     image_label.image = photo
-
 def clear_text():
     text_area.delete('1.0', END)
+
+def add_record():
+    tree.insert("", "end", values=("Record Name", "Data 1", "Data 2"))
+
+# Function to update coordinates
+def update_coordinates(event):
+    coord_label.config(text=f"Coordinates: x={event.x}, y={event.y}")
 
 root = Tk()
 
 menubar = Menu(root)
 filemenu = Menu(menubar, tearoff=0)
-# filemenu.add_command(label="Nuevo")
-filemenu.add_command(label="Abrir", command=open_file)
-filemenu.add_command(label="Guardar", command=save)
-filemenu.add_command(label="Guardar como", command=save_as)
+filemenu.add_command(label="Open", command=open_file)
+filemenu.add_command(label="Save", command=save)
+filemenu.add_command(label="Save As", command=save_as)
 filemenu.add_separator()
-filemenu.add_command(label="Salir", command=root.quit)
+filemenu.add_command(label="Exit", command=root.quit)
 menubar.add_cascade(label="Menu", menu=filemenu)
 
 filemenu_student = Menu(menubar, tearoff=0)
-filemenu_student.add_command(label="Datos estudiante", command=show_student_info)
-menubar.add_cascade(label="Acerca de", menu=filemenu_student)
+filemenu_student.add_command(label="Student Data", command=show_student_info)
+menubar.add_cascade(label="About", menu=filemenu_student)
 
-# etiqueta 
 etq = Label(root, text="LFP Transpiler")
 etq.pack()
 
-# area de texto para el código fuente
-text_area = Text(root, width=140, height=30)
+text_area = Text(root, width=140, height=20)
 text_area.place(x=20, y=30)
 text_area.insert(END, '''
-<!--Controles
-// Este bloque tambien puede recibir comentarios
-Contenedor contlogin;
-Contenedor contFondo;
-Boton cmdIngresar;
-Clave pswClave;
-Etiqueta passw;
-Etiqueta Nombre;
-Texto Texto0;
-Contenedor contlogo2;
-Contenedor ContLogo1;
-Contenedor ContBody;
-Controles -->
-<!--propiedades
-// Este bloque tambien puede recibir comentarios
-contlogin.setAncho(190);
-contlogin.setAlto(150);
-contlogin.setColorFondo(47,79,79);
-contFondo.setAncho(800);
-contFondo.setAlto(100);
-contFondo.setColorFondo(64,64,64);
-cmdIngresar.setTexto("Ingresar");
-pswClave.setTexto("");
-passw.setAncho(53);
-passw.setAlto(13 );
-passw.setColorLetra(128,128,128);
-passw.setTexto("Password");
-Nombre.setAncho(44); 
-Nombre.setAlto(13);
-Nombre.setColorLetra(128,128,128); 
-Nombre.setTexto("Nombre");
-contlogo2.setAncho(150); 
-contlogo2.setAlto( 50);
-contlogo2.setColorFondo(0,128,128);
-ContLogo1.setAncho(50); 
-ContLogo1.setAlto( 50);
-ContLogo1.setColorFondo(64,64,64);
-ContBody.setAncho(800); 
-ContBody.setAlto(300);
-ContBody.setColorFondo(64,224,208);
-propiedades -->
-<!--Colocacion
-contFondo.setPosicion(25,330);
-this.add(contFondo);
-contlogin.setPosicion(586,110);
-ContBody.add(contlogin);
-passw.setPosicion(11,54); 
-contlogin.add(passw);
-cmdIngresar.setPosicion(40,100);
-contlogin.add(cmdIngresar);
-pswClave.setPosicion(67,48);
-contlogin.add(pswClave);
-Nombre.setPosicion(8,21);
-contlogin.add(Nombre);
-contlogo2.setPosicion(88,25);
-ContBody.add(contlogo2);
-ContLogo1.setPosicion(36,25);
-ContBody.add(ContLogo1);
-ContBody.setPosicion(23,21);
-this.add(ContBody);
-Colocacion -->
+<!--Controls
 ''')
 
 image_label = Label(root)
 image_label.place(x=80, y=500)
 
-btnAnalyze = Button(root, text="Analizar", width=10, height=2, command=analize)
+btnAnalyze = Button(root, text="Analyze", width=10, height=2, command=analyze)
 btnAnalyze.place(x=1050, y=100)
 
-btnClear = Button(root, text="Limpiar", width=10, height=2, command=clear_text)
+btnClear = Button(root, text="Clear", width=10, height=2, command=clear_text)
 btnClear.place(x=1050, y=200)
+
+# Table setup
+table_frame = Frame(root)
+table_frame.place(x=20, y=450)
+
+tree = ttk.Treeview(table_frame, columns=("Column1", "Column2", "Column3"), show='headings')
+tree.heading("Column1", text="Name")
+tree.heading("Column2", text="Data 1")
+tree.heading("Column3", text="Data 2")
+tree.pack()
+
+btnAddRecord = Button(root, text="Add Record", width=10, height=2, command=add_record)
+btnAddRecord.place(x=1050, y=300)
+
+# Coordinate label setup
+coord_label = Label(root, text="Coordinates: x=0, y=0", font=("Arial", 10))
+coord_label.place(x=20, y=820)
+
+# Binding motion event to update_coordinates function
+root.bind("<Motion>", update_coordinates)
 
 root.config(menu=menubar)
 

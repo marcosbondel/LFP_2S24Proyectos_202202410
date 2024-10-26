@@ -331,6 +331,8 @@ module SyntaxAnalyzer
                     call self%track_param(lexeme)
                 end if
                 call remove_record(size(self%pile), size(self%pile), self%pile)
+            else
+                print *, "hmmmmmmmmmm"
             end if
 
         end subroutine check_token_symbol
